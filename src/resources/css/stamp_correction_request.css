@@ -1,0 +1,54 @@
+.request-list {
+    max-width: 800px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.request-list__tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.request-list__tab {
+    padding: 10px 20px;
+    border: none;
+    background-color: #ddd;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.request-list__tab.active {
+    background-color: #2563eb;
+    color: white;
+}
+
+.request-list__subtitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.attendance-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.attendance-list__table th,
+.attendance-list__table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.request-list__status.pending {
+    color: #eab308;
+    font-weight: bold;
+}
+
+.request-list__status.approved {
+    color: #16a34a;
+    font-weight: bold;
+}

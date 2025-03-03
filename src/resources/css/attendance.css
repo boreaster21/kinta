@@ -1,0 +1,34 @@
+.attendance {
+    text-align: center;
+    padding: 20px;
+}
+
+.attendance__status {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.status-label {
+    background: #ccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.attendance__date {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.attendance__time {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.attendance__actions button {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: 5px;
+}

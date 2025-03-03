@@ -1,0 +1,9 @@
+# Docker
+docker/mysql/data/
+docker/mysql/data/*
+*.log
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
