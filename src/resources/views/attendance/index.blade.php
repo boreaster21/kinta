@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="attendance">
-    <h2 class="attendance__title">{{ $date }}</h2>
-
     <div class="attendance__status">
         <span class="status-label">{{ $status }}</span>
     </div>
+
+    <h2 class="attendance__title">{{ $date }}</h2>
 
     <div class="attendance__time">
         {{ $currentTime }}

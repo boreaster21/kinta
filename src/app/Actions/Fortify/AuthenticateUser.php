@@ -2,35 +2,29 @@
 
 namespace App\Actions\Fortify;
 
-use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\LoginResponse;
 
 class AuthenticateUser
 {
-    public function authenticate(Request $request)
+    public function authenticate($request)
     {
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $user = User::where('email', $request->email)->first();
 
-        if (!Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $request->filled('remember'))) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'general' => ['ログイン情報が登録されていません。'],
+                'email' => ['ログイン情報が登録されていません。'],
             ]);
         }
-
-        $user = Auth::user();
 
         if (!$user->hasVerifiedEmail()) {
-            Auth::logout();
             throw ValidationException::withMessages([
-                'general' => ['メール認証が完了していません。認証メールを確認してください。'],
+                'email' => ['メール認証が完了していません。認証メールをご確認ください。'],
             ]);
         }
 
-        return app(LoginResponse::class);
+        return $user;
     }
 }

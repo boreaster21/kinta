@@ -1,0 +1,208 @@
+.request-list {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.request-list__title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.request-list__tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.request-list__tab {
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.request-list__tab:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.request-list__tab--active {
+    background-color: #4A90E2;
+    border-color: #4A90E2;
+    color: white;
+}
+
+.request-list__tab--active:hover {
+    background-color: #357ABD;
+    color: white;
+}
+
+.request-list__message {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.request-list__container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.request-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.request-list__table th,
+.request-list__table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.request-list__table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.request-list__status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.request-list__status--pending {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.request-list__status--approved {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.request-list__status--rejected {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.request-list__button {
+    display: inline-block;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: white;
+    text-decoration: none;
+}
+
+.request-list__button--detail {
+    background-color: #4A90E2;
+}
+
+.request-list__button--detail:hover {
+    background-color: #357ABD;
+}
+
+/* 承認フォーム用のスタイル */
+.approve-form {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.approve-form__title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.approve-form__container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.approve-form__info {
+    margin-bottom: 30px;
+}
+
+.approve-form__row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.approve-form__label {
+    width: 120px;
+    font-weight: bold;
+    color: #666;
+}
+
+.approve-form__value {
+    flex: 1;
+}
+
+.approve-form__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 20px;
+}
+
+.approve-form__form {
+    display: inline-block;
+}
+
+.approve-form__button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.approve-form__button--approve {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.approve-form__button--approve:hover {
+    background-color: #388E3C;
+}
+
+.approve-form__button--reject {
+    background-color: #F44336;
+    color: white;
+}
+
+.approve-form__button--reject:hover {
+    background-color: #D32F2F;
+}
+
+.approve-form__button--back {
+    background-color: #9e9e9e;
+    color: white;
+}
+
+.approve-form__button--back:hover {
+    background-color: #757575;
+} 

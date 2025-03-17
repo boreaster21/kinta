@@ -15,7 +15,7 @@
             @csrf
             <div class="auth__group">
                 <label class="auth__label">メールアドレス</label>
-                <input type="email" name="email" class="auth__input" value="{{ old('email') }}">
+                <input type="email" name="email" class="auth__input" value="{{ old('email') }}" required autofocus>
                 @error('email')
                 <div class="auth__error-message">{{ $message }}</div>
                 @enderror
@@ -23,7 +23,7 @@
 
             <div class="auth__group">
                 <label class="auth__label">パスワード</label>
-                <input type="password" name="password" class="auth__input">
+                <input type="password" name="password" class="auth__input" required>
                 @error('password')
                 <div class="auth__error-message">{{ $message }}</div>
                 @enderror

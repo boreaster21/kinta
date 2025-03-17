@@ -15,17 +15,16 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email'],
-            'password' => ['required', 'min:8'],
+            'password' => ['required'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.required' => 'メールアドレスsusususuを入力してください。',
-            'email.email' => '正しいメールアドレスを入力してください。',
+            'email.required' => 'メールアドレスを入力してください。',
             'password.required' => 'パスワードを入力してください。',
-            'password.min' => 'パスワードは8文字以上で入力してください。',
+            'email.email' => 'ログイン情報が登録されていません。',
         ];
     }
 }

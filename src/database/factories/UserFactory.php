@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'role_id' => Role::where('name', 'admin')->first()->id ?? Role::factory(),
             'email' => 'admin@example.com',
             'name' => 'Admin User',
-            'password' => 'adminpass',
+            'password' => Hash::make('adminpass'),
         ]);
     }
     public function unverified(): static

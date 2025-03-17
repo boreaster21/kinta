@@ -18,6 +18,7 @@ class Attendance extends Model
         'clock_out',
         'total_break_time',
         'total_work_time',
+        'reason'
     ];
 
     public function user()
@@ -32,13 +33,23 @@ class Attendance extends Model
 
     public function calculateTotalBreakTime()
     {
-        $totalBreakMinutes = $this->breaks()->whereNotNull('start_time')->whereNotNull('end_time')->sum(function ($break) {
-            return max(0, Carbon::parse($break->end_time)->diffInMinutes(Carbon::parse($break->start_time)));
-        });
+        $totalBreakMinutes = $this->breaks()
+            ->whereNotNull('start_time')
+            ->whereNotNull('end_time')
+            ->get()
+            ->sum(function ($break) {
+                $startTime = Carbon::parse($break->start_time);
+                $endTime = Carbon::parse($break->end_time);
+                return max(0, $endTime->diffInMinutes($startTime));
+            });
 
-        $formattedBreakTime = sprintf('%02d:%02d', intdiv($totalBreakMinutes, 60), $totalBreakMinutes % 60);
+        $formattedBreakTime = sprintf('%02d:%02d', 
+            intdiv($totalBreakMinutes, 60), 
+            $totalBreakMinutes % 60
+        );
 
-        $this->update(['total_break_time' => $formattedBreakTime]);
+        $this->total_break_time = $formattedBreakTime;
+        $this->save();
 
         return $totalBreakMinutes;
     }
@@ -49,13 +60,28 @@ class Attendance extends Model
             $clockIn = Carbon::parse($this->clock_in);
             $clockOut = Carbon::parse($this->clock_out);
 
-            $totalBreakMinutes = $this->calculateTotalBreakTime();
+            $totalWorkMinutes = $clockOut->diffInMinutes($clockIn);
 
-            $workDuration = max(0, $clockOut->diffInMinutes($clockIn) - $totalBreakMinutes);
+            // 休憩時間の計算
+            $totalBreakMinutes = $this->breaks()
+                ->whereNotNull('start_time')
+                ->whereNotNull('end_time')
+                ->get()
+                ->sum(function ($break) {
+                    $startTime = Carbon::parse($break->start_time);
+                    $endTime = Carbon::parse($break->end_time);
+                    return max(0, $endTime->diffInMinutes($startTime));
+                });
 
-            $formattedWorkTime = sprintf('%02d:%02d', intdiv($workDuration, 60), $workDuration % 60);
+            $actualWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
 
-            $this->update(['total_work_time' => $formattedWorkTime]);
+            $formattedWorkTime = sprintf('%02d:%02d', 
+                intdiv($actualWorkMinutes, 60), 
+                $actualWorkMinutes % 60
+            );
+
+            $this->total_work_time = $formattedWorkTime;
+            $this->save();
         }
     }
 

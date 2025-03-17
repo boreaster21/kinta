@@ -26,8 +26,14 @@ return [
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
-            // 'window' => 0,
         ]),
     ],
-
+    'redirects' => [
+        'login' => '/attendance',
+        'logout' => '/login',
+        'password-confirmation' => null,
+        'register' => '/attendance',
+        'email-verification' => null,
+        'password-reset' => null,
+    ],
 ];

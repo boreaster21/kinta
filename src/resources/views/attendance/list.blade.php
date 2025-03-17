@@ -28,7 +28,7 @@
                 <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
                 <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
                 <td>{{ $attendance->total_break_time ?: '00:00' }}</td>
-                <td>{{ ltrim($attendance->total_work_time, '-') ?: '00:00' }}</td>
+                <td>{{ $attendance->total_work_time ?: '00:00' }}</td>
                 <td>
                     <a href="{{ route('attendance.show', ['id' => $attendance->id]) }}" class="attendance-list__detail">詳細</a>
                 </td>

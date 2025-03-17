@@ -1,45 +1,211 @@
 .attendance-list {
-    max-width: 800px;
-    margin: 20px auto;
-    text-align: center;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .attendance-list__title {
     font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
-.attendance-list__controls {
+.attendance-list__header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.attendance-list__nav {
-    margin: 0 15px;
-    color: #000;
-    text-decoration: none;
+.attendance-list__date-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.attendance-list__date {
+    font-size: 18px;
     font-weight: bold;
+}
+
+.attendance-list__nav-button {
+    padding: 8px 15px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.attendance-list__nav-button:hover {
+    background: #e9ecef;
+}
+
+.attendance-list__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .attendance-list__table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 800px;
 }
 
 .attendance-list__table th,
 .attendance-list__table td {
+    padding: 15px;
     border: 1px solid #ddd;
-    padding: 10px;
     text-align: center;
 }
 
-.attendance-list__detail {
-    color: blue;
-    text-decoration: underline;
+.attendance-list__table th {
+    background-color: #f8f9fa;
     font-weight: bold;
+    white-space: nowrap;
+}
+
+.attendance-list__table td {
+    vertical-align: middle;
+}
+
+.attendance-list__detail-button {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.attendance-list__detail-button:hover {
+    background: #388E3C;
+}
+
+/* 大画面（1540px以上） */
+@media screen and (min-width: 1541px) {
+    .attendance-list {
+        max-width: 1400px;
+    }
+
+    .attendance-list__table {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* PC画面（1400px-1540px） */
+@media screen and (min-width: 1400px) and (max-width: 1540px) {
+    .attendance-list {
+        max-width: 1300px;
+    }
+
+    .attendance-list__table {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* 中間画面（849px-1399px） */
+@media screen and (min-width: 851px) and (max-width: 1399px) {
+    .attendance-list {
+        max-width: 90%;
+        padding: 15px;
+    }
+
+    .attendance-list__table-wrapper {
+        width: 100%;
+        margin: 0;
+    }
+
+    .attendance-list__table {
+        width: 100%;
+        min-width: 100%;
+    }
+}
+
+/* タブレット画面（768px-850px） */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+    .attendance-list {
+        width: 100%;
+        padding: 15px;
+        margin: 0;
+    }
+
+    .attendance-list__header {
+        padding: 0;
+        margin-bottom: 15px;
+    }
+
+    .attendance-list__table-wrapper {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .attendance-list__table {
+        width: 100%;
+        min-width: 100%;
+        margin: 0;
+        table-layout: fixed;
+    }
+
+    .attendance-list__table th,
+    .attendance-list__table td {
+        padding: 12px 8px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .attendance-list__table th {
+        width: auto;
+    }
+}
+
+/* スマホ画面（767px以下） */
+@media screen and (max-width: 767px) {
+    .attendance-list {
+        width: 100%;
+        padding: 10px;
+        margin: 0;
+    }
+
+    .attendance-list__title {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .attendance-list__header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .attendance-list__date-nav {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .attendance-list__table-wrapper {
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+
+    .attendance-list__table {
+        font-size: 14px;
+    }
+
+    .attendance-list__table th,
+    .attendance-list__table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .attendance-list__detail-button {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
 }
