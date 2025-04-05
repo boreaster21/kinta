@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use App\Models\StampCorrectionRequest;
+use Illuminate\Support\Facades\Log;
 
 class Attendance extends Model
 {
@@ -21,6 +22,12 @@ class Attendance extends Model
         'reason'
     ];
 
+    protected $casts = [
+        'date' => 'datetime',
+        'clock_in' => 'datetime',
+        'clock_out' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -33,56 +40,94 @@ class Attendance extends Model
 
     public function calculateTotalBreakTime()
     {
-        $totalBreakMinutes = $this->breaks()
-            ->whereNotNull('start_time')
-            ->whereNotNull('end_time')
-            ->get()
-            ->sum(function ($break) {
+        Log::info('calculateTotalBreakTime started', [
+            'attendance_id' => $this->id,
+            'breaks_count' => $this->breaks()->count()
+        ]);
+
+        $totalBreakMinutes = 0;
+        $breaks = $this->breaks()->get();
+
+        foreach ($breaks as $break) {
+            if ($break->start_time && $break->end_time) {
                 $startTime = Carbon::parse($break->start_time);
                 $endTime = Carbon::parse($break->end_time);
-                return max(0, $endTime->diffInMinutes($startTime));
-            });
+                $minutes = $startTime->diffInMinutes($endTime);
 
-        $formattedBreakTime = sprintf('%02d:%02d', 
+                Log::info('Break time calculation', [
+                    'attendance_id' => $this->id,
+                    'break_id' => $break->id,
+                    'start_time' => $startTime->format('H:i'),
+                    'end_time' => $endTime->format('H:i'),
+                    'minutes' => $minutes
+                ]);
+
+                $totalBreakMinutes += $minutes;
+            }
+        }
+
+        // 時間形式に変換して保存
+        $this->total_break_time = sprintf('%02d:%02d', 
             intdiv($totalBreakMinutes, 60), 
             $totalBreakMinutes % 60
         );
 
-        $this->total_break_time = $formattedBreakTime;
-        $this->save();
+        Log::info('Total break time calculated', [
+            'attendance_id' => $this->id,
+            'total_break_minutes' => $totalBreakMinutes,
+            'total_break_time' => $this->total_break_time
+        ]);
 
         return $totalBreakMinutes;
     }
 
     public function calculateTotalWorkTime()
     {
-        if (!empty($this->clock_in) && !empty($this->clock_out)) {
-            $clockIn = Carbon::parse($this->clock_in);
-            $clockOut = Carbon::parse($this->clock_out);
+        Log::info('calculateTotalWorkTime started', [
+            'attendance_id' => $this->id,
+            'clock_in' => $this->clock_in,
+            'clock_out' => $this->clock_out,
+            'total_break_time' => $this->total_break_time
+        ]);
 
-            $totalWorkMinutes = $clockOut->diffInMinutes($clockIn);
-
-            // 休憩時間の計算
-            $totalBreakMinutes = $this->breaks()
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->get()
-                ->sum(function ($break) {
-                    $startTime = Carbon::parse($break->start_time);
-                    $endTime = Carbon::parse($break->end_time);
-                    return max(0, $endTime->diffInMinutes($startTime));
-                });
-
-            $actualWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
-
-            $formattedWorkTime = sprintf('%02d:%02d', 
-                intdiv($actualWorkMinutes, 60), 
-                $actualWorkMinutes % 60
-            );
-
-            $this->total_work_time = $formattedWorkTime;
-            $this->save();
+        if (!$this->clock_in || !$this->clock_out) {
+            $this->total_work_time = '00:00';
+            Log::info('calculateTotalWorkTime: No clock in/out time', [
+                'attendance_id' => $this->id
+            ]);
+            return;
         }
+
+        $clockInTime = Carbon::parse($this->clock_in);
+        $clockOutTime = Carbon::parse($this->clock_out);
+        
+        // 総勤務時間（分）を計算
+        $totalMinutes = $clockInTime->diffInMinutes($clockOutTime);
+        
+        // 休憩時間（分）を取得
+        $breakMinutes = $this->calculateTotalBreakTime();
+        
+        // 実働時間（分）を計算
+        $workMinutes = max(0, $totalMinutes - $breakMinutes);
+        
+        // 時間形式に変換して保存
+        $this->total_work_time = sprintf('%02d:%02d', 
+            intdiv($workMinutes, 60), 
+            $workMinutes % 60
+        );
+
+        Log::info('Work time calculated', [
+            'attendance_id' => $this->id,
+            'clock_in' => $clockInTime->format('H:i'),
+            'clock_out' => $clockOutTime->format('H:i'),
+            'total_minutes' => $totalMinutes,
+            'break_minutes' => $breakMinutes,
+            'work_minutes' => $workMinutes,
+            'total_work_time' => $this->total_work_time,
+            'total_break_time' => $this->total_break_time
+        ]);
+
+        return $workMinutes;
     }
 
     public function correctionRequests()

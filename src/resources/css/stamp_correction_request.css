@@ -1,27 +1,164 @@
 .request-list {
-    max-width: 800px;
-    margin: 20px auto;
-    text-align: center;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.request-list__title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.request-list__message {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.request-list__message--success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
 }
 
 .request-list__tabs {
     display: flex;
-    justify-content: center;
     margin-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .request-list__tab {
     padding: 10px 20px;
-    border: none;
-    background-color: #ddd;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-right: 5px;
+    font-weight: 500;
+    color: #495057;
 }
 
 .request-list__tab.active {
-    background-color: #2563eb;
+    background-color: #fff;
+    border-bottom: 2px solid #fff;
+    color: #000;
+    font-weight: bold;
+}
+
+.request-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.request-list__table th,
+.request-list__table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.request-list__table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.request-list__table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.request-list__status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.request-list__status--pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.request-list__status--approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.request-list__status--rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.request-list__detail-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #6c757d;
     color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.request-list__detail-link:hover {
+    background-color: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+/* 承認済み修正申請の詳細 */
+.card {
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    width: 30%;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+h5 {
+    color: #495057;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    color: white;
+    text-decoration: none;
 }
 
 .request-list__subtitle {

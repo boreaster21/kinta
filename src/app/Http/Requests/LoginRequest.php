@@ -14,8 +14,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+            'email' => ['required', 'string', 'email:rfc'],
+            'password' => ['required', 'string'],
         ];
     }
 
@@ -23,8 +23,8 @@ class LoginRequest extends FormRequest
     {
         return [
             'email.required' => 'メールアドレスを入力してください。',
+            'email.email' => 'メールアドレスの形式が正しくありません。',
             'password.required' => 'パスワードを入力してください。',
-            'email.email' => 'ログイン情報が登録されていません。',
         ];
     }
 }

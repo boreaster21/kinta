@@ -19,7 +19,7 @@
                     <td>{{ $staff->name }}</td>
                     <td>{{ $staff->email }}</td>
                     <td>
-                        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $staff->id]) }}" class="staff-list__button">勤怠詳細</a>
+                        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $staff->id]) }}" class="staff-list__button">詳細</a>
                     </td>
                 </tr>
                 @endforeach

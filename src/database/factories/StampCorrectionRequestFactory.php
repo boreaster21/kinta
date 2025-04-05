@@ -15,18 +15,15 @@ class StampCorrectionRequestFactory extends Factory
     public function definition(): array
     {
         $attendance = Attendance::inRandomOrder()->first() ?? Attendance::factory()->create();
-        $clockIn = Carbon::parse($attendance->date . ' 09:00');
-        $clockOut = Carbon::parse($attendance->date . ' 18:00');
-        $breakStart = Carbon::parse($attendance->date . ' 12:00');
-        $breakEnd = Carbon::parse($attendance->date . ' 13:00');
+        $date = $attendance->date->format('Y-m-d');
 
         return [
             'user_id' => $attendance->user_id,
             'attendance_id' => $attendance->id,
-            'clock_in' => $clockIn->addMinutes(rand(-30, 30))->format('H:i'),
-            'clock_out' => $clockOut->addMinutes(rand(-30, 30))->format('H:i'),
-            'break_start' => $breakStart->addMinutes(rand(-10, 10))->format('H:i'),
-            'break_end' => $breakEnd->addMinutes(rand(-10, 10))->format('H:i'),
+            'clock_in' => Carbon::parse($date . ' 09:00')->addMinutes(rand(-30, 30))->format('H:i'),
+            'clock_out' => Carbon::parse($date . ' 18:00')->addMinutes(rand(-30, 30))->format('H:i'),
+            'break_start' => Carbon::parse($date . ' 12:00')->addMinutes(rand(-10, 10))->format('H:i'),
+            'break_end' => Carbon::parse($date . ' 13:00')->addMinutes(rand(-10, 10))->format('H:i'),
             'reason' => $this->faker->sentence(),
             'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
             'created_at' => Carbon::now()->subDays(rand(1, 30)),

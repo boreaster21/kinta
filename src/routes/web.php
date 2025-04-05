@@ -1,20 +1,19 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\StampCorrectionRequestController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
-use App\Http\Controllers\StampCorrectionRequestController;
-use App\Http\Controllers\Admin\StampCorrectionRequestController as AdminStampCorrectionRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return Auth::user()->is_admin ? redirect('/admin/attendance/list') : redirect('/attendance');
+        return Auth::user()->isAdmin() ?
+            redirect('/admin/attendance/list') :
+            redirect('/attendance');
     }
     return redirect('/login');
 });
@@ -25,13 +24,35 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::prefix('admin')->middleware(['guest'])->group(function () {
-    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.store');
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [AdminAuthController::class, 'login'])->name('login.store');
+    });
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+        Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.list');
+        Route::get('/attendance/staff/{id}', [StaffController::class, 'monthlyAttendance'])->name('staff.monthly_attendance');
+        Route::get('/attendance/list', [App\Http\Controllers\Admin\AttendanceController::class, 'list'])->name('attendance.list');
+        Route::get('/attendance/{id}', [App\Http\Controllers\Admin\AttendanceController::class, 'show'])->name('attendance.show');
+        Route::put('/attendance/{id}/update', [App\Http\Controllers\Admin\AttendanceController::class, 'update'])->name('attendance.update');
+        Route::get('/attendance/staff/{id}/export/{month}', [App\Http\Controllers\Admin\AttendanceController::class, 'exportMonthlyCsv'])->name('staff.monthly_attendance.export');
+
+        Route::prefix('stamp_correction_request')->name('stamp_correction_request.')->group(function() {
+            Route::get('/list', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'list'])->name('list');
+            Route::get('/approve/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'showApproveForm'])->name('show');
+            Route::post('/approve/{request}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'approve'])->name('approve');
+            Route::post('/reject/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'reject'])->name('reject');
+            Route::get('/approved/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'showApproved'])->name('approved');
+            Route::get('/', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'list'])->name('index');
+        });
+    });
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
     Route::get('/email/verify', function () {
         return view('auth.verify-email');
     })->name('verification.notice');
@@ -41,46 +62,36 @@ Route::middleware(['auth'])->group(function () {
         return redirect('/attendance');
     })->middleware(['signed'])->name('verification.verify');
 
-    Route::post('/email/resend', function (Request $request) {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect('/attendance');
-        }
-
+    Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', '認証メールを再送しました！');
-    })->middleware(['throttle:6,1'])->name('verification.resend');
+        return back()->with('status', 'verification-link-sent');
+    })->middleware(['throttle:6,1'])->name('verification.send');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
-    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
-    Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])->name('attendance.break-start');
-    Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])->name('attendance.break-end');
-    Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.list');
-    Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
-    Route::post('/attendance/{id}/request', [StampCorrectionRequestController::class, 'store'])->name('attendance.request');
-    Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'index'])->name('stamp_correction_request.list');
-    
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'showApproveForm'])
-            ->name('stamp_correction_request.approve.form');
-        Route::post('/stamp_correction_request/{id}/approve', [StampCorrectionRequestController::class, 'approve'])
-            ->name('stamp_correction_request.approve');
-        Route::post('/stamp_correction_request/{id}/reject', [StampCorrectionRequestController::class, 'reject'])
-            ->name('stamp_correction_request.reject');
+    Route::prefix('attendance')->name('attendance.')->group(function () {
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clock_in');
+        Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clock_out');
+        Route::post('/break-start', [AttendanceController::class, 'breakStart'])->name('break_start');
+        Route::post('/break-end', [AttendanceController::class, 'breakEnd'])->name('break_end');
+        Route::get('/list', [AttendanceController::class, 'list'])->name('list');
+        Route::get('/{id}', [AttendanceController::class, 'show'])->name('show');
+        Route::post('/{id}/request', [AttendanceController::class, 'request'])->name('request');
     });
-});
 
-Route::prefix('admin')->middleware(['auth', 'admin', 'verified'])->group(function () {
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-    Route::get('/attendance/list', [AdminAttendanceController::class, 'index'])->name('admin.attendance.list');
-    Route::get('/staff/list', [StaffController::class, 'index'])->name('admin.staff.list');
-    Route::get('/attendance/staff/{id}', [StaffController::class, 'monthlyAttendance'])->name('admin.staff.monthly_attendance');
-    Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.show');
-    Route::put('/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('admin.attendance.update');
-    Route::get('/stamp_correction_request/list', [AdminStampCorrectionRequestController::class, 'index'])->name('admin.stamp_correction_request.list');
-    Route::get('/stamp_correction_request/{id}/approve', [AdminStampCorrectionRequestController::class, 'showApproveForm'])->name('admin.stamp_correction_request.approve.form');
-    Route::post('/stamp_correction_request/{id}/approve', [AdminStampCorrectionRequestController::class, 'approve'])->name('admin.stamp_correction_request.approve');
-    Route::post('/stamp_correction_request/{id}/reject', [AdminStampCorrectionRequestController::class, 'reject'])->name('admin.stamp_correction_request.reject');
+    Route::prefix('stamp_correction_request')->name('stamp_correction_request.')->group(function () {
+        Route::get('/list', function (Request $request) {
+            if (Auth::user()->isAdmin()) {
+                return app()->make(\App\Http\Controllers\Admin\StampCorrectionRequestController::class)->list($request);
+            }
+            return app()->make(\App\Http\Controllers\StampCorrectionRequestController::class)->list($request);
+        })->name('list');
+        // Route::get('/{id}', [StampCorrectionRequestController::class, 'show'])->name('show'); // 古い show ルートはコメントアウトまたは削除
+        Route::get('/pending/{request}', [StampCorrectionRequestController::class, 'showPending'])->name('pending');
+        Route::get('/approved/{request}', [StampCorrectionRequestController::class, 'showApproved'])->name('approved');
+        Route::post('/{id}/approve', [StampCorrectionRequestController::class, 'approve'])
+            ->middleware(['admin'])
+            ->name('approve');
+    });
 });

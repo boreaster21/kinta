@@ -1,41 +1,55 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
-<div class="auth">
-    <div class="auth__box">
-        <h2 class="auth__title">管理者ログイン</h2>
-
+<div class="admin-auth">
+    <div class="admin-auth__box">
+        <h1 class="admin-auth__title">管理者ログイン</h1>
+        
         @if (session('message'))
-        <div class="auth__message">
-            {{ session('message') }}
-        </div>
+            <div class="admin-auth__message">
+                {{ session('message') }}
+            </div>
         @endif
 
         @if ($errors->has('general'))
-        <div class="auth__error-message auth__error-message--general">
-            {{ $errors->first('general') }}
-        </div>
+            <div class="admin-auth__error-message--general">
+                {{ $errors->first('general') }}
+            </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login.store') }}" class="auth__form" novalidate>
+        <form method="POST" action="{{ route('admin.login.store') }}" class="admin-auth__form" novalidate>
             @csrf
-            <div class="auth__group">
-                <label class="auth__label">メールアドレス</label>
-                <input type="email" name="email" class="auth__input" value="{{ old('email') }}" required autofocus>
+            <div class="admin-auth__group">
+                <label for="email" class="admin-auth__label">メールアドレス</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="admin-auth__input @error('email') admin-auth__input--error @enderror" 
+                    value="{{ old('email') }}" 
+                    required 
+                    autofocus
+                >
                 @error('email')
-                <div class="auth__error-message">{{ $message }}</div>
+                    <div class="admin-auth__error-message">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="auth__group">
-                <label class="auth__label">パスワード</label>
-                <input type="password" name="password" class="auth__input" required>
+            <div class="admin-auth__group">
+                <label for="password" class="admin-auth__label">パスワード</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="admin-auth__input @error('password') admin-auth__input--error @enderror" 
+                    required
+                >
                 @error('password')
-                <div class="auth__error-message">{{ $message }}</div>
+                    <div class="admin-auth__error-message">{{ $message }}</div>
                 @enderror
             </div>
 
-            <button type="submit" class="auth__button">管理者ログインする</button>
+            <button type="submit" class="admin-auth__button">管理者ログイン</button>
         </form>
     </div>
 </div>

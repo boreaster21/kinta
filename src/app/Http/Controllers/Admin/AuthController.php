@@ -12,6 +12,12 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
+        if (Auth::check()) {
+            if (Auth::user()->isAdmin()) {
+                return redirect('/admin/attendance/list');
+            }
+            return redirect('/attendance');
+        }
         return view('admin.auth.login');
     }
 
@@ -29,7 +35,7 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
-            return redirect()->intended('/admin/attendance/list');
+            return redirect('/admin/attendance/list');
         }
 
         return back()->withErrors([

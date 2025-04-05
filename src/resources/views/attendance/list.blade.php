@@ -2,11 +2,14 @@
 
 @section('content')
 <div class="attendance-list">
-    <h2 class="attendance-list__title">勤怠一覧</h2>
+    <h2 class="page-title">勤怠一覧</h2>
 
     <div class="attendance-list__controls">
         <a href="{{ route('attendance.list', ['month' => $previousMonth]) }}" class="attendance-list__nav">← 前月</a>
-        <span class="attendance-list__month">{{ \Carbon\Carbon::parse($currentMonth)->format('Y年m月') }}</span>
+        <div class="attendance-list__month-wrapper">
+            <img src="{{ asset('img/calendar.png') }}" alt="カレンダー" class="calendar-icon">
+            <span class="attendance-list__month">{{ \Carbon\Carbon::parse($month)->format('Y/m') }}</span>
+        </div>
         <a href="{{ route('attendance.list', ['month' => $nextMonth]) }}" class="attendance-list__nav">翌月 →</a>
     </div>
 
@@ -24,13 +27,13 @@
         <tbody>
             @foreach ($attendances as $attendance)
             <tr>
-                <td>{{ \Carbon\Carbon::parse($attendance->date)->format('m/d (D)') }}</td>
-                <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
-                <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
-                <td>{{ $attendance->total_break_time ?: '00:00' }}</td>
-                <td>{{ $attendance->total_work_time ?: '00:00' }}</td>
+                <td>{{ $attendance['date'] }}</td>
+                <td>{{ $attendance['clock_in'] }}</td>
+                <td>{{ $attendance['clock_out'] }}</td>
+                <td>{{ $attendance['break_time'] }}</td>
+                <td>{{ $attendance['total_time'] }}</td>
                 <td>
-                    <a href="{{ route('attendance.show', ['id' => $attendance->id]) }}" class="attendance-list__detail">詳細</a>
+                    <a href="{{ route('attendance.show', ['id' => $attendance['id']]) }}" class="attendance-list__detail">詳細</a>
                 </td>
             </tr>
             @endforeach

@@ -7,21 +7,23 @@ use App\Models\StampCorrectionRequest;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StampCorrectionRequestController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $status = $request->query('status', 'pending');
+
         $query = StampCorrectionRequest::with(['user', 'attendance'])
             ->orderBy('created_at', 'desc');
 
-        // 管理者でない場合は自分の申請のみ表示
-        if (!Auth::user()->isAdmin()) {
-            $query->where('user_id', Auth::id());
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
         }
 
-        // ステータスに応じてフィルタリング
         if ($status === 'pending') {
             $query->where('status', 'pending');
         } else {
@@ -29,23 +31,36 @@ class StampCorrectionRequestController extends Controller
         }
 
         $requests = $query->get()
-            ->map(function ($request) {
-                $request->created_at = Carbon::parse($request->created_at);
-                $request->attendance->date = Carbon::parse($request->attendance->date);
-                return $request;
+            ->map(function ($request) use ($user) {
+                return [
+                    'id' => $request->id,
+                    'date' => Carbon::parse($request->attendance->date)->format('Y/m/d'),
+                    'clock_in' => Carbon::parse($request->clock_in)->format('H:i'),
+                    'clock_out' => Carbon::parse($request->clock_out)->format('H:i'),
+                    'break_times' => collect($request->break_start)->map(function ($start, $index) use ($request) {
+                        return $start . ' - ' . $request->break_end[$index];
+                    })->join('<br>'),
+                    'reason' => $request->reason,
+                    'status' => $request->status,
+                    'created_at' => Carbon::parse($request->created_at)->format('Y/m/d H:i'),
+                    'approved_at' => $request->approved_at ? Carbon::parse($request->approved_at)->format('Y/m/d H:i') : null,
+                    'detail_url' => $request->status === 'approved'
+                        ? route('stamp_correction_request.approved', $request->id)
+                        : route('stamp_correction_request.show', $request->id)
+                ];
             });
 
         return view('stamp_correction_request.list', [
             'requests' => $requests,
-            'currentStatus' => $status,
-            'isAdmin' => Auth::user()->isAdmin()
+            'status' => $status,
+            'currentStatus' => $status
         ]);
     }
 
     public function showApproveForm($id)
     {
         $request = StampCorrectionRequest::with(['user', 'attendance'])->findOrFail($id);
-        
+
         return view('stamp_correction_request.approve', [
             'request' => $request
         ]);
@@ -53,28 +68,63 @@ class StampCorrectionRequestController extends Controller
 
     public function approve($id)
     {
-        $correctionRequest = StampCorrectionRequest::findOrFail($id);
-        $attendance = $correctionRequest->attendance;
+        $request = StampCorrectionRequest::findOrFail($id);
 
-        // 申請内容を反映
-        $attendance->update([
-            $correctionRequest->correction_type => $correctionRequest->requested_value
-        ]);
+        if (!Auth::user()->isAdmin()) {
+            abort(403);
+        }
 
-        // 申請のステータスを更新
-        $correctionRequest->update([
-            'status' => 'approved',
-            'approved_at' => now()
-        ]);
+        if ($request->status !== 'pending') {
+            abort(400, 'この申請は既に処理済みです。');
+        }
 
-        return redirect()->route('stamp_correction_request.list')
-            ->with('message', '申請を承認しました。');
+        try {
+            DB::beginTransaction();
+
+            $attendance = $request->attendance;
+            $request->original_clock_in = $attendance->clock_in;
+            $request->original_clock_out = $attendance->clock_out;
+            $request->original_break_start = $attendance->breaks->first()?->start_time;
+            $request->original_break_end = $attendance->breaks->first()?->end_time;
+            $request->original_reason = $attendance->reason;
+
+            $attendance->clock_in = $request->clock_in;
+            $attendance->clock_out = $request->clock_out;
+            $attendance->reason = $request->reason;
+            $attendance->save();
+
+            $attendance->breaks()->delete();
+            foreach ($request->break_times as $break) {
+                $attendance->breaks()->create([
+                    'start_time' => $break['start'],
+                    'end_time' => $break['end']
+                ]);
+            }
+
+            $request->status = 'approved';
+            $request->approved_at = now();
+            $request->approved_by = Auth::id();
+            $request->save();
+
+            DB::commit();
+
+            return redirect()->route('stamp_correction_request.show', $request->id)
+                ->with('success', '申請を承認しました。');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('勤怠修正申請の承認に失敗しました', [
+                'request_id' => $request->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', '申請の承認に失敗しました。');
+        }
     }
 
     public function reject($id)
     {
         $correctionRequest = StampCorrectionRequest::findOrFail($id);
-        
         $correctionRequest->update([
             'status' => 'rejected',
             'rejected_at' => now()
@@ -106,5 +156,111 @@ class StampCorrectionRequestController extends Controller
         ]);
 
         return redirect()->route('stamp_correction_request.list')->with('success', '修正申請が送信されました');
+    }
+
+    public function history($attendanceId)
+    {
+        $histories = DB::table('attendance_modification_history')
+            ->where('attendance_id', $attendanceId)
+            ->join('users', 'attendance_modification_history.modified_by', '=', 'users.id')
+            ->join('attendances', 'attendance_modification_history.attendance_id', '=', 'attendances.id')
+            ->select(
+                'attendance_modification_history.*',
+                'users.name as modified_by_name',
+                'attendances.clock_in as current_clock_in',
+                'attendances.clock_out as current_clock_out',
+                'attendances.total_break_time as current_total_break_time',
+                'attendances.total_work_time as current_total_work_time'
+            )
+            ->orderBy('attendance_modification_history.created_at', 'desc')
+            ->get();
+
+        return view('stamp_correction_request.history', compact('histories'));
+    }
+
+    public function list(Request $request)
+    {
+        $status = $request->query('status', 'pending');
+        $query = StampCorrectionRequest::with(['attendance'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc');
+
+        if ($status === 'pending') {
+            $query->where('status', 'pending');
+        } elseif ($status === 'processed') {
+            $query->whereIn('status', ['approved', 'rejected']);
+        }
+
+        $requests = $query->get()->map(function ($request) use ($status) {
+            return [
+                'id' => $request->id,
+                'date' => Carbon::parse($request->attendance->date)->format('Y/m/d'),
+                'clock_in' => Carbon::parse($request->clock_in)->format('H:i'),
+                'clock_out' => Carbon::parse($request->clock_out)->format('H:i'),
+                'break_times' => collect($request->break_start)->map(function ($start, $index) use ($request) {
+                    return $start . ' - ' . $request->break_end[$index];
+                })->join('<br>'),
+                'reason' => $request->reason,
+                'status' => $request->status,
+                'created_at' => Carbon::parse($request->created_at)->format('Y/m/d H:i'),
+                'approved_at' => $request->approved_at ? Carbon::parse($request->approved_at)->format('Y/m/d H:i') : null,
+                'detail_url' => $request->status === 'pending'
+                    ? route('stamp_correction_request.pending', $request->id)
+                    : route('stamp_correction_request.approved', $request->id)
+            ];
+        });
+
+        return view('stamp_correction_request.list', [
+            'requests' => $requests,
+            'status' => $status
+        ]);
+    }
+
+    /**
+     * 承認待ち修正申請の詳細を表示
+     *
+     * @param int $id 修正申請ID
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        $request = StampCorrectionRequest::findOrFail($id);
+
+        if (!Auth::user()->isAdmin() && $request->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($request->status === 'approved') {
+            return $this->showApproved($request);
+        }
+
+        return $this->showPending($request);
+    }
+
+    public function showPending(StampCorrectionRequest $request)
+    {
+        if ($request->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $data = [
+            'request' => $request,
+            'attendance' => $request->attendance,
+        ];
+
+        return view('stamp_correction_request.pending', $data);
+    }
+
+    public function showApproved(StampCorrectionRequest $request)
+    {
+        if ($request->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $data = [
+            'request' => $request,
+        ];
+
+        return view('stamp_correction_request.approved', $data);
     }
 }

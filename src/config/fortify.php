@@ -32,7 +32,7 @@ return [
         'login' => '/attendance',
         'logout' => '/login',
         'password-confirmation' => null,
-        'register' => '/attendance',
+        'register' => '/email/verify',
         'email-verification' => null,
         'password-reset' => null,
     ],

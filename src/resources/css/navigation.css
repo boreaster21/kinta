@@ -1,0 +1,90 @@
+/* ナビゲーション用のスタイル */
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav__logo {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.nav__logo img {
+    height: 100%;
+}
+
+.nav__logo-text {
+    color: #fff;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.nav__menu {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav__item {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav__item:hover {
+    color: #4A90E2;
+}
+
+.nav__form {
+    display: inline;
+}
+
+.nav__logout {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0;
+    transition: color 0.3s;
+}
+
+.nav__logout:hover {
+    color: #4A90E2;
+}
+
+.footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    margin-top: auto;
+}
+
+/* スマホ対応 */
+@media screen and (max-width: 767px) {
+    .nav {
+        flex-direction: column;
+        padding: 0.5rem;
+    }
+    
+    .nav__logo {
+        margin-bottom: 0.5rem;
+    }
+    
+    .nav__menu {
+        width: 100%;
+        justify-content: space-around;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .nav__item {
+        font-size: 14px;
+    }
+} 

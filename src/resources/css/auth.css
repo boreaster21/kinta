@@ -2,6 +2,19 @@
     padding: 20px;
     max-width: 500px;
     margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.auth__box {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
 }
 
 .auth__title {
@@ -10,14 +23,7 @@
     text-align: center;
 }
 
-.auth__form {
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.auth__form-group {
+.auth__group {
     margin-bottom: 20px;
 }
 
@@ -36,10 +42,19 @@
     box-sizing: border-box;
 }
 
-.auth__error {
-    color: #dc3545;
+.auth__error-message {
+    color: #ff3333;
     font-size: 14px;
     margin-top: 5px;
+}
+
+.auth__error-message--general {
+    background: #ffdddd;
+    border: 1px solid #ff3333;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 .auth__button {
@@ -51,11 +66,7 @@
     border-radius: 4px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.auth__button:hover {
-    background: #388E3C;
+    margin-top: 10px;
 }
 
 .auth__link {
@@ -63,21 +74,12 @@
     text-align: center;
     margin-top: 20px;
     color: #666;
-    text-decoration: none;
-}
-
-.auth__link:hover {
-    text-decoration: underline;
 }
 
 /* PC用スタイル（1400px-1540px） */
 @media screen and (min-width: 1400px) and (max-width: 1540px) {
     .auth {
         max-width: 600px;
-    }
-
-    .auth__form {
-        padding: 40px;
     }
 }
 
@@ -93,13 +95,6 @@
     .auth__title {
         font-size: 20px;
         margin-bottom: 20px;
-    }
-
-    .auth__form {
-        padding: 20px;
-        margin: 0 auto;
-        width: 100%;
-        box-sizing: border-box;
     }
 
     .auth__input {
@@ -118,38 +113,16 @@
         margin: 0 auto;
         padding: 20px;
     }
-
-    .verify-email__box {
-        width: 90%;
-        max-width: none;
-        margin: 0 auto;
-        padding: 20px;
-    }
 }
 
-.auth__error-message {
-    color: #ff3333;
+.auth__error {
+    color: #dc3545;
     font-size: 14px;
     margin-top: 5px;
 }
 
-.auth__error-message--general {
-    background: #ffdddd;
-    border: 1px solid #ff3333;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.auth__box {
-    background: #ffffff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
+.auth__link:hover {
+    text-decoration: underline;
 }
 
 .verify-email {

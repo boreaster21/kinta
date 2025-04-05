@@ -48,6 +48,7 @@ body {
     margin-top: 20px;
 }
 
+/* ボタン基本スタイル */
 .btn {
     padding: 15px 30px;
     font-size: 18px;
@@ -58,22 +59,26 @@ body {
     min-width: 150px;
 }
 
+/* 出勤ボタン */
 .btn-primary {
     background-color: #000000;
     color: #FFFFFF;
 }
 
+/* 退勤ボタン */
 .btn-danger {
-    background-color: #000000;
-    color: #FFFFFF;
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
 }
 
+/* 休憩ボタン */
 .btn-secondary {
     background-color: #FFFFFF;
     color: #000000;
     border: 1px solid #000000;
 }
 
+/* ホバー効果 */
 .btn:hover {
     opacity: 0.8;
 }
@@ -181,4 +186,63 @@ body {
         max-width: calc(50% - 15px);
         flex: 0 0 auto;
     }
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.attendance__info {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.info-item {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+.info-value {
+    color: #212529;
+}
+
+.attendance-form {
+    margin: 10px 0;
+}
+
+.attendance-form.inline {
+    display: inline-block;
+    margin-right: 10px;
 }
