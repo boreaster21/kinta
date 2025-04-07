@@ -1,0 +1,7 @@
+{
+    "Showing :first to :last of :total results": ":total 件中 :first から :last まで表示",
+    "Previous": "前へ",
+    "Next": "次へ",
+    "Pagination Navigation": "ページネーションナビゲーション",
+    "Go to page :page": "ページ :page へ移動"
+} 

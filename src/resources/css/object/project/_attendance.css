@@ -1,0 +1,156 @@
+.p-attendance-stamp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.p-attendance-stamp__status {
+    width: 100%;
+    text-align: center;
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+
+.p-attendance-stamp__title {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.p-attendance-stamp__time {
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.p-attendance-stamp__actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.p-attendance-stamp__message {
+    font-size: 24px;
+    text-align: center;
+    color: #696969;
+}
+
+.p-attendance-stamp__form {
+    margin: 0;
+}
+
+.p-attendance-stamp__form--inline {
+    display: inline-block;
+}
+
+
+.c-list-controls
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    margin-bottom: 40px;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.c-list-controls__label-wrapper
+{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.c-list-controls__label
+{
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.c-list-controls__link
+{
+    color: #737373;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.p-attendance-detail {
+}
+
+.p-attendance-detail__button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.p-attendance-detail__break-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.p-attendance-detail__history {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.p-attendance-detail__history-title {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.p-attendance-detail__history-table {}
+
+.is-admin .p-admin-staff-list {
+    /* Styles specific to admin staff list container */
+}
+
+.is-admin .p-admin-monthly-attendance {
+    /* Styles specific to admin monthly attendance container */
+}
+
+.is-admin .p-admin-monthly-attendance__export {
+    margin-top: 20px;
+    text-align: right;
+}
+
+@media screen and (max-width: 768px) {
+    .p-attendance-stamp__time {
+        font-size: 28px;
+    }
+
+    .p-attendance-stamp__actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .c-list-controls
+    {
+        padding: 15px 20px;
+        gap: 20px;
+    }
+
+    .c-list-controls__label
+    {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .c-list-controls
+    {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+}

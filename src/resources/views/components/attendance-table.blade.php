@@ -48,4 +48,4 @@
             <textarea name="reason" {{ !$isAdmin && $pendingRequest ? 'disabled' : '' }} >{{ old('reason', $attendance->display_reason) }}</textarea>
         </td>
     </tr>
-</table> 
+</table>

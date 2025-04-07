@@ -1,57 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="attendance">
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+<div class="l-container l-container--narrow p-attendance-stamp">
+    {{-- Alert component usage --}}
+    <x-alert type="success" :message="session('success')" />
+    <x-alert type="danger" :message="session('error')" />
+    <x-alert type="warning" :message="session('warning')" />
 
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if (session('warning'))
-        <div class="alert alert-warning">
-            {{ session('warning') }}
-        </div>
-    @endif
-
-    <h2 class="attendance__title">{{ $date }}</h2>
-
-    <div class="attendance__status">
-        <span class="status-label">{{ $status }}</span>
+    <div class="p-attendance-stamp__status">
+        <span class="c-status-label">{{ $status }}</span>
+    </div>
+    <div>
+        <h2  class="p-attendance-stamp__title">{{ $date }}</h2>
     </div>
 
-    <div class="attendance__time">
+    <div class="p-attendance-stamp__time">
         {{ $currentTime }}
     </div>
 
-    <div class="attendance__actions">
+    <div class="p-attendance-stamp__actions">
         @if ($status === '勤務外')
-        <form method="POST" action="{{ route('attendance.clock_in') }}" class="attendance-form">
+        <form method="POST" action="{{ route('attendance.clock_in') }}" class="p-attendance-stamp__form">
             @csrf
-            <button type="submit" class="btn btn-primary">出勤</button>
+            {{-- Button component usage --}}
+            <x-button type="submit" variant="primary" size="lg">出勤</x-button>
         </form>
         @elseif ($status === '出勤中')
-        <form method="POST" action="{{ route('attendance.break_start') }}" class="attendance-form inline">
+        <form method="POST" action="{{ route('attendance.clock_out') }}" class="p-attendance-stamp__form p-attendance-stamp__form--inline">
             @csrf
-            <button type="submit" class="btn btn-secondary">休憩</button>
+            <x-button type="submit" variant="danger" size="lg">退勤</x-button>
         </form>
-        <form method="POST" action="{{ route('attendance.clock_out') }}" class="attendance-form inline">
+
+        <form method="POST" action="{{ route('attendance.break_start') }}" class="p-attendance-stamp__form p-attendance-stamp__form--inline">
             @csrf
-            <button type="submit" class="btn btn-danger">退勤</button>
+            <x-button type="submit" variant="secondary" size="lg">休憩入</x-button>
         </form>
         @elseif ($status === '休憩中')
-        <form method="POST" action="{{ route('attendance.break_end') }}" class="attendance-form inline">
+        <form method="POST" action="{{ route('attendance.break_end') }}" class="p-attendance-stamp__form p-attendance-stamp__form--inline">
             @csrf
-            <button type="submit" class="btn btn-secondary">休憩戻</button>
+            <x-button type="submit" variant="secondary" size="lg">休憩戻</x-button>
         </form>
         @elseif ($status === '退勤済')
-        <p class="attendance__message">お疲れさまでした！</p>
+        <p class="p-attendance-stamp__message">お疲れさまでした。</p>
         @endif
     </div>
 </div>
@@ -60,3 +50,4 @@
 @push('scripts')
     @vite('resources/js/attendance.js')
 @endpush
+

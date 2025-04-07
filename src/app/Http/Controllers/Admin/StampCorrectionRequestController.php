@@ -13,46 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class StampCorrectionRequestController extends Controller
 {
-    public function list(Request $request)
-    {
-        $status = $request->query('status', 'pending');
-        $query = StampCorrectionRequest::with(['user', 'attendance'])
-            ->orderBy('created_at', 'desc');
-
-        if ($status === 'pending') {
-            $query->where('status', 'pending');
-        } elseif ($status === 'processed') {
-            $query->whereIn('status', ['approved', 'rejected']);
-        }
-
-        $requests = $query->get()->map(function ($request) {
-            return [
-                'id' => $request->id,
-                'date' => Carbon::parse($request->attendance->date)->format('Y/m/d'),
-                'clock_in' => Carbon::parse($request->clock_in)->format('H:i'),
-                'clock_out' => Carbon::parse($request->clock_out)->format('H:i'),
-                'break_times' => collect($request->break_times)->map(function ($break) {
-                    return [
-                        'start' => Carbon::parse($break['start'])->format('H:i'),
-                        'end' => Carbon::parse($break['end'])->format('H:i')
-                    ];
-                }),
-                'reason' => $request->reason,
-                'status' => $request->status,
-                'created_at' => Carbon::parse($request->created_at)->format('Y/m/d H:i'),
-                'approved_at' => $request->approved_at ? Carbon::parse($request->approved_at)->format('Y/m/d H:i') : null,
-                'user_name' => $request->user->name,
-                'detail_url' => $request->status === 'approved'
-                    ? route('admin.stamp_correction_request.approved', $request->id)
-                    : ($request->status === 'pending' 
-                        ? route('admin.stamp_correction_request.show', $request->id)
-                        : route('admin.stamp_correction_request.approved', $request->id))
-            ];
-        });
-
-        return view('admin.stamp_correction_request.list', compact('requests', 'status'));
-    }
-
     public function approve(StampCorrectionRequest $request)
     {
         Log::info('Starting approval process', [
@@ -68,7 +28,6 @@ class StampCorrectionRequestController extends Controller
             $attendance = $request->attendance;
             $date = Carbon::parse($attendance->date)->format('Y-m-d');
 
-            // 修正前の情報を保存
             $request->original_clock_in = $attendance->clock_in;
             $request->original_clock_out = $attendance->clock_out;
             $request->original_break_start = $attendance->breaks->map(function ($break) {
@@ -78,32 +37,30 @@ class StampCorrectionRequestController extends Controller
                 return Carbon::parse($break->end_time)->format('H:i');
             })->toArray();
             $request->original_reason = $attendance->reason;
-            $request->approved_by = Auth::id();
-            $request->approved_at = now();
+            $request->original_date = $attendance->date;
 
-            // 出退勤時間の更新
-            $attendance->clock_in = Carbon::parse($request->clock_in)->format('Y-m-d H:i:s');
-            $attendance->clock_out = Carbon::parse($request->clock_out)->format('Y-m-d H:i:s');
-            
-            // 備考の更新
+            $attendance->date = Carbon::parse($request->date)->format('Y-m-d');
+            $newDateStr = $attendance->date;
+
+            $attendance->clock_in = Carbon::parse($newDateStr . ' ' . $request->clock_in)->format('Y-m-d H:i:s');
+            $attendance->clock_out = Carbon::parse($newDateStr . ' ' . $request->clock_out)->format('Y-m-d H:i:s');
+
             if (!empty($request->reason)) {
                 $attendance->reason = $request->reason;
             }
-            
+
             $attendance->save();
 
-            Log::info('Updated attendance times', [
+            Log::info('Updated attendance base info', [
                 'attendance_id' => $attendance->id,
-                'date' => $date,
+                'date' => $attendance->date,
                 'clock_in' => $attendance->clock_in,
                 'clock_out' => $attendance->clock_out,
                 'reason' => $attendance->reason
             ]);
 
-            // 既存の休憩時間を削除
             $attendance->breaks()->delete();
 
-            // 休憩時間の作成
             $breakStarts = $request->break_start;
             $breakEnds = $request->break_end;
 
@@ -112,8 +69,8 @@ class StampCorrectionRequestController extends Controller
                     continue;
                 }
 
-                $breakStart = Carbon::parse($date . ' ' . $start)->format('Y-m-d H:i:s');
-                $breakEnd = Carbon::parse($date . ' ' . $breakEnds[$index])->format('Y-m-d H:i:s');
+                $breakStart = Carbon::parse($newDateStr . ' ' . $start)->format('Y-m-d H:i:s');
+                $breakEnd = Carbon::parse($newDateStr . ' ' . $breakEnds[$index])->format('Y-m-d H:i:s');
 
                 $break = $attendance->breaks()->create([
                     'start_time' => $breakStart,
@@ -121,7 +78,7 @@ class StampCorrectionRequestController extends Controller
                     'duration' => Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart))
                 ]);
 
-                Log::info('Created break time', [
+                Log::info('Created break time after approval', [
                     'attendance_id' => $attendance->id,
                     'break_index' => $index,
                     'break_start' => $breakStart,
@@ -130,26 +87,26 @@ class StampCorrectionRequestController extends Controller
                 ]);
             }
 
-            // 休憩時間と勤務時間の再計算と Attendance モデルへの保存
-            $attendance->calculateTotalBreakTime(); // メソッド内で $this->total_break_time が更新される
-            $attendance->calculateTotalWorkTime();  // メソッド内で $this->total_work_time が更新される
-            $attendance->save(); // 更新された合計時間を含む Attendance モデルを保存
+            $attendance->calculateTotalBreakTime();
+            $attendance->calculateTotalWorkTime();
+            $attendance->save();
 
-            $totalBreakTime = $attendance->total_break_time; // ログ用に保存された値を取得
-            $totalWorkTime = $attendance->total_work_time;   // ログ用に保存された値を取得
+            $totalBreakTime = $attendance->total_break_time;
+            $totalWorkTime = $attendance->total_work_time;
 
-            Log::info('Final attendance state', [
+            Log::info('Final attendance state after approval', [
                 'attendance_id' => $attendance->id,
                 'clock_in' => $attendance->clock_in,
                 'clock_out' => $attendance->clock_out,
                 'reason' => $attendance->reason,
                 'total_break_time' => $totalBreakTime,
                 'total_work_time' => $totalWorkTime,
-                'breaks' => $attendance->breaks
+                'breaks_count' => $attendance->breaks()->count()
             ]);
 
-            // 修正申請のステータスを更新
             $request->status = 'approved';
+            $request->approved_by = Auth::id();
+            $request->approved_at = now();
             $request->save();
 
             DB::commit();
@@ -172,7 +129,7 @@ class StampCorrectionRequestController extends Controller
     public function reject($id)
     {
         $correctionRequest = StampCorrectionRequest::findOrFail($id);
-        
+
         $correctionRequest->update([
             'status' => 'rejected',
             'rejected_at' => now()
@@ -185,28 +142,9 @@ class StampCorrectionRequestController extends Controller
     public function showApproveForm($id)
     {
         $request = StampCorrectionRequest::with(['user', 'attendance'])->findOrFail($id);
-        
+
         return view('admin.stamp_correction_request.approve', [
             'request' => $request
         ]);
     }
-
-    public function showApproved($id)
-    {
-        $request = StampCorrectionRequest::with(['user', 'attendance'])
-            ->findOrFail($id);
-
-        if ($request->status !== 'approved') {
-            abort(404, '承認済みの修正申請のみ表示できます。');
-        }
-
-        $request->created_at = Carbon::parse($request->created_at);
-        $request->approved_at = Carbon::parse($request->approved_at);
-        $request->clock_in = Carbon::parse($request->clock_in);
-        $request->clock_out = Carbon::parse($request->clock_out);
-        $request->original_clock_in = Carbon::parse($request->original_clock_in);
-        $request->original_clock_out = Carbon::parse($request->original_clock_out);
-
-        return view('admin.stamp_correction_request.approved', compact('request'));
-    }
-} 
+}

@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
@@ -16,7 +17,7 @@ class AttendanceController extends Controller
     public function list(Request $request)
     {
         $date = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
-        $users = User::where('role_id', 2)->get(); // 一般ユーザーのみ取得
+        $users = User::where('role_id', 2)->get();
         $attendances = Attendance::whereDate('date', $date)
             ->with(['user', 'correctionRequests' => function ($query) {
                 $query->where('status', 'approved');
@@ -44,7 +45,6 @@ class AttendanceController extends Controller
             ->orderBy('date')
             ->get()
             ->map(function ($attendance) {
-                // 修正申請が承認されている場合、その値を反映
                 if ($attendance->correctionRequests->isNotEmpty()) {
                     foreach ($attendance->correctionRequests as $request) {
                         if ($request->status === 'approved') {
@@ -66,73 +66,197 @@ class AttendanceController extends Controller
 
     public function show($id)
     {
-        $attendance = Attendance::with(['user', 'breaks'])->findOrFail($id);
-        
-        // 日付と時刻データをCarbonインスタンスに変換
-        $attendance->date = Carbon::parse($attendance->date);
-        $attendance->clock_in = $attendance->clock_in ? Carbon::parse($attendance->clock_in) : null;
-        $attendance->clock_out = $attendance->clock_out ? Carbon::parse($attendance->clock_out) : null;
-        
+        $attendance = Attendance::with(['user', 'breaks', 'correctionRequests' => function ($query) {
+            $query->where('status', 'approved')->orderBy('approved_at', 'desc');
+        }])->findOrFail($id);
+
+        $displayData = [];
+        $latestApprovedRequest = $attendance->correctionRequests->first();
+        $date = Carbon::parse($attendance->date)->format('Y-m-d');
+
+        if ($latestApprovedRequest) {
+            $displayData['clock_in'] = Carbon::parse($latestApprovedRequest->clock_in);
+            $displayData['clock_out'] = Carbon::parse($latestApprovedRequest->clock_out);
+            $displayData['breaks'] = collect($latestApprovedRequest->break_start ?? [])->map(function ($start, $index) use ($latestApprovedRequest, $date) {
+                 $endTime = $latestApprovedRequest->break_end[$index] ?? null;
+                 return (object)[
+                    'start_time' => $start ? Carbon::parse($date . ' ' . $start) : null,
+                    'end_time' => $endTime ? Carbon::parse($date . ' ' . $endTime) : null,
+                 ];
+             })->filter(function ($break) {
+                 return $break->start_time && $break->end_time;
+             });
+            $displayData['reason'] = $latestApprovedRequest->reason;
+        } else {
+            $displayData['clock_in'] = $attendance->clock_in ? Carbon::parse($attendance->clock_in) : null;
+            $displayData['clock_out'] = $attendance->clock_out ? Carbon::parse($attendance->clock_out) : null;
+            $displayData['breaks'] = $attendance->breaks;
+            $displayData['reason'] = $attendance->reason;
+        }
+
+        $correctionHistory = $attendance->correctionRequests()
+                                ->where('status', 'approved')
+                                ->with('approvedBy')
+                                ->orderBy('approved_at', 'desc')
+                                ->get()
+                                ->map(function ($request) {
+                                    return [
+                                        'id' => $request->id,
+                                        'created_at' => Carbon::parse($request->created_at),
+                                        'clock_in' => $request->clock_in,
+                                        'clock_out' => $request->clock_out,
+                                        'break_start' => $request->break_start,
+                                        'break_end' => $request->break_end,
+                                        'reason' => $request->reason,
+                                        'approved_at' => Carbon::parse($request->approved_at),
+                                        'approved_by' => $request->approvedBy?->name
+                                    ];
+                                });
+
         return view('attendance.detail', [
             'attendance' => $attendance,
             'isAdmin' => true,
-            'pendingRequest' => false
+            'pendingRequest' => false,
+            'correctionHistory' => $correctionHistory,
+            'displayData' => $displayData
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
-        
-        $validated = $request->validate([
+
+        $rules = [
+            'date' => 'required|date',
             'clock_in' => 'required|date_format:H:i',
             'clock_out' => 'required|date_format:H:i',
-            'breaks' => 'array',
-            'breaks.*.start_time' => 'nullable|date_format:H:i',
-            'breaks.*.end_time' => 'nullable|date_format:H:i',
-            'reason' => 'nullable|string|max:255',
-        ]);
+            'breaks' => 'nullable|array',
+            'breaks.*.start_time' => 'nullable|date_format:H:i|required_with:breaks.*.end_time',
+            'breaks.*.end_time' => 'nullable|date_format:H:i|required_with:breaks.*.start_time',
+            'reason' => 'required|string|max:1000',
+        ];
+
+        $messages = [
+            'date.required' => '日付は必須です。',
+            'date.date' => '日付の形式が正しくありません。',
+            'clock_in.required' => '出勤時間は必須です。',
+            'clock_in.date_format' => '出勤時間の形式が正しくありません (HH:MM)。',
+            'clock_out.required' => '退勤時間は必須です。',
+            'clock_out.date_format' => '退勤時間の形式が正しくありません (HH:MM)。',
+            'breaks.*.start_time.date_format' => '休憩開始時間の形式が正しくありません (HH:MM)。',
+            'breaks.*.start_time.required_with' => '休憩終了時間を入力する場合、休憩開始時間も入力してください。',
+            'breaks.*.end_time.date_format' => '休憩終了時間の形式が正しくありません (HH:MM)。',
+            'breaks.*.end_time.required_with' => '休憩開始時間を入力する場合、休憩終了時間も入力してください。',
+            'reason.required' => '備考を記入してください。',
+            'reason.max' => '備考は1000文字以内で入力してください。',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        $validator->after(function ($validator) use ($request) {
+            $dateInput = $request->input('date');
+            $clockInInput = $request->input('clock_in');
+            $clockOutInput = $request->input('clock_out');
+
+            if (!$dateInput || !$clockInInput || !$clockOutInput || $validator->errors()->hasAny(['date', 'clock_in', 'clock_out'])) {
+                return;
+            }
+
+            try {
+                $date = Carbon::parse($dateInput);
+                $clockIn = $date->copy()->setTimeFromTimeString($clockInInput);
+                $clockOut = $date->copy()->setTimeFromTimeString($clockOutInput);
+
+                if ($clockIn->gt($clockOut)) {
+                    $validator->errors()->add('clock_in', '出勤時間もしくは退勤時間が不適切な値です。');
+                }
+
+                $breaks = $request->input('breaks', []);
+                foreach ($breaks as $index => $break) {
+                    $breakStartInput = $break['start_time'] ?? null;
+                    $breakEndInput = $break['end_time'] ?? null;
+
+                    if (!empty($breakStartInput) && !empty($breakEndInput)) {
+                         if (!$validator->errors()->has("breaks.{$index}.start_time") && !$validator->errors()->has("breaks.{$index}.end_time")) {
+                             $breakStart = $date->copy()->setTimeFromTimeString($breakStartInput);
+                             $breakEnd = $date->copy()->setTimeFromTimeString($breakEndInput);
+    
+                             if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
+                                 $validator->errors()->add("breaks.{$index}.start_time", '休憩時間が勤務時間外です。');
+                             }
+    
+                             if ($breakStart->gt($breakEnd)) {
+                                 $validator->errors()->add("breaks.{$index}.end_time", '休憩終了時間は休憩開始時間より後に設定してください。');
+                             }
+                         }
+                    } elseif (!empty($breakStartInput) || !empty($breakEndInput)) {
+                         $validator->errors()->add("breaks.{$index}.start_time", '休憩開始時間と終了時間の両方を入力してください。');
+                    }
+                }
+            } catch (\Exception $e) {
+                 $validator->errors()->add('date', '日付または時刻の形式が無効です。');
+            }
+        });
+
+        $validated = $validator->validate();
 
         try {
             DB::beginTransaction();
 
-            // 出退勤時間の更新
-            $date = $attendance->date->format('Y-m-d');
-            $attendance->clock_in = Carbon::parse($date . ' ' . $validated['clock_in']);
-            $attendance->clock_out = Carbon::parse($date . ' ' . $validated['clock_out']);
-            $attendance->reason = $validated['reason'] ?? null;
+            $newDateStr = Carbon::parse($validated['date'])->format('Y-m-d');
 
-            // 休憩時間の更新
-            if (isset($validated['breaks'])) {
-                $attendance->breaks()->delete();
+            $attendance->date = $newDateStr;
+            $attendance->clock_in = Carbon::parse($newDateStr . ' ' . $validated['clock_in']);
+            $attendance->clock_out = Carbon::parse($newDateStr . ' ' . $validated['clock_out']);
+            $attendance->reason = $validated['reason'];
+
+            $attendance->breaks()->delete();
+            if (!empty($validated['breaks'])) {
                 foreach ($validated['breaks'] as $break) {
-                    if ($break['start_time'] && $break['end_time']) {
-                        $attendance->breaks()->create([
-                            'start_time' => Carbon::parse($date . ' ' . $break['start_time']),
-                            'end_time' => Carbon::parse($date . ' ' . $break['end_time']),
-                        ]);
+                    if (!empty($break['start_time']) && !empty($break['end_time'])) {
+                         $startTime = Carbon::parse($newDateStr . ' ' . $break['start_time']);
+                         $endTime = Carbon::parse($newDateStr . ' ' . $break['end_time']);
+
+                         if ($startTime->lt($endTime)) {
+                             $attendance->breaks()->create([
+                                 'start_time' => $startTime,
+                                 'end_time' => $endTime,
+                                 'duration' => $startTime->diffInMinutes($endTime)
+                             ]);
+                         } else {
+                             Log::warning('Invalid break time skipped during admin update', [
+                                 'attendance_id' => $id,
+                                 'start_time' => $break['start_time'],
+                                 'end_time' => $break['end_time']
+                             ]);
+                         }
                     }
                 }
             }
 
-            // 合計時間の計算
+            $attendance->save();
+
             $attendance->calculateTotalBreakTime();
             $attendance->calculateTotalWorkTime();
             $attendance->save();
 
             DB::commit();
 
-            return redirect()->route('admin.attendance.list')
-                ->with('success', '勤怠情報を更新しました。');
+            $staffId = $attendance->user_id;
+            $month = Carbon::parse($attendance->date)->format('Y-m');
+            return redirect()->route('admin.staff.monthly_attendance', ['id' => $staffId, 'month' => $month])
+                             ->with('success', '勤怠情報を更新しました。');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating attendance', [
+            Log::error('Error updating attendance by admin', [
                 'error' => $e->getMessage(),
-                'attendance_id' => $id
+                'attendance_id' => $id,
+                'user_id' => auth()->id(),
+                'trace' => $e->getTraceAsString()
             ]);
 
-            return back()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。']);
+            return back()->withInput()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。']);
         }
     }
 
@@ -143,10 +267,8 @@ class AttendanceController extends Controller
         $startDate = $targetMonth->copy()->startOfMonth();
         $endDate = $targetMonth->copy()->endOfMonth();
 
-        // 対象月の勤怠データを取得 (staffAttendance と同様のロジックで良いか確認)
         $attendances = Attendance::where('user_id', $id)
             ->whereBetween('date', [$startDate, $endDate])
-            // ->with(...) // CSVに必要なリレーションがあれば Eager Load
             ->orderBy('date')
             ->get();
 
@@ -156,13 +278,10 @@ class AttendanceController extends Controller
         $response = new StreamedResponse(function() use ($attendances, $csvHeader) {
             $handle = fopen('php://output', 'w');
 
-            // BOM を追加してExcelでの文字化けを防ぐ
             fwrite($handle, "\xEF\xBB\xBF");
 
-            // ヘッダー行を書き込み
             fputcsv($handle, $csvHeader);
 
-            // データ行を書き込み
             foreach ($attendances as $attendance) {
                 $rowData = [
                     Carbon::parse($attendance->date)->format('Y/m/d'),

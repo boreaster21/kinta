@@ -7,27 +7,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Kinta') }} - 管理画面</title>
     @vite([
-        'resources/css/app.css',
-        'resources/css/common.css',
-        'resources/css/layouts.css',
-        'resources/css/admin/layout.css',
-        'resources/css/auth.css',
-        'resources/css/admin-auth.css',
-        'resources/css/attendance.css',
-        'resources/css/attendance-list.css',
-        'resources/css/attendance-detail.css',
-        'resources/css/stamp_correction_request.css',
-        'resources/css/verify-email.css',
-        'resources/css/admin/attendance-list.css',
-        'resources/css/admin/staff-list.css',
-        'resources/css/admin/monthly-attendance.css',
-        'resources/css/admin/stamp-correction-request.css',
+        'resources/css/admin.css',
         'resources/js/app.js',
         'resources/js/layouts/admin.js'
     ])
+    @stack('styles')
+    @stack('scripts')
 </head>
 
-<body>
+<body class="is-admin">
     <nav class="nav">
         @auth
             @if(Auth::user()->isAdmin())
@@ -88,3 +76,4 @@
 </body>
 
 </html>
+

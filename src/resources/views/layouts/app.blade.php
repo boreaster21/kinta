@@ -9,22 +9,10 @@
 
     @vite([
         'resources/css/app.css',
-        'resources/css/common.css',
-        'resources/css/layouts.css',
-        'resources/css/navigation.css',
-        'resources/css/auth.css',
-        'resources/css/admin-auth.css',
-        'resources/css/attendance.css',
-        'resources/css/attendance-list.css',
-        'resources/css/attendance-detail.css',
-        'resources/css/stamp_correction_request.css',
-        'resources/css/verify-email.css',
-        'resources/css/admin/attendance-list.css',
-        'resources/css/admin/staff-list.css',
-        'resources/css/admin/monthly-attendance.css',
-        'resources/css/admin/stamp-correction-request.css',
         'resources/js/app.js',
     ])
+    @stack('styles')
+    @stack('scripts')
 </head>
 
 <body>
@@ -61,7 +49,7 @@
                         @if (Auth::user()->isAdmin())
                             <a href="{{ route('admin.attendance.list') }}" class="nav__item">勤怠一覧</a>
                             <a href="{{ route('admin.staff.list') }}" class="nav__item">スタッフ一覧</a>
-                            <a href="{{ route('admin.stamp_correction_request.list') }}" class="nav__item">申請一覧</a>
+                            <a href="{{ route('stamp_correction_request.list') }}" class="nav__item">申請一覧</a>
                             <form method="POST" action="{{ route('admin.logout') }}" class="nav__form">
                                 @csrf
                                 <button type="submit" class="nav__logout">ログアウト</button>
@@ -91,3 +79,4 @@
 </body>
 
 </html>
+

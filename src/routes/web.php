@@ -35,17 +35,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.list');
         Route::get('/attendance/staff/{id}', [StaffController::class, 'monthlyAttendance'])->name('staff.monthly_attendance');
         Route::get('/attendance/list', [App\Http\Controllers\Admin\AttendanceController::class, 'list'])->name('attendance.list');
-        Route::get('/attendance/{id}', [App\Http\Controllers\Admin\AttendanceController::class, 'show'])->name('attendance.show');
-        Route::put('/attendance/{id}/update', [App\Http\Controllers\Admin\AttendanceController::class, 'update'])->name('attendance.update');
+        Route::put('/attendance/{id}/update', [App\Http\Controllers\Admin\AttendanceController::class, 'update'])
+            ->name('attendance.update')
+            ->withoutMiddleware(\Illuminate\Auth\Middleware\Authorize::class);
         Route::get('/attendance/staff/{id}/export/{month}', [App\Http\Controllers\Admin\AttendanceController::class, 'exportMonthlyCsv'])->name('staff.monthly_attendance.export');
 
         Route::prefix('stamp_correction_request')->name('stamp_correction_request.')->group(function() {
-            Route::get('/list', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'list'])->name('list');
             Route::get('/approve/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'showApproveForm'])->name('show');
             Route::post('/approve/{request}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'approve'])->name('approve');
             Route::post('/reject/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'reject'])->name('reject');
             Route::get('/approved/{id}', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'showApproved'])->name('approved');
-            Route::get('/', [\App\Http\Controllers\Admin\StampCorrectionRequestController::class, 'list'])->name('index');
         });
     });
 });
@@ -81,17 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('stamp_correction_request')->name('stamp_correction_request.')->group(function () {
-        Route::get('/list', function (Request $request) {
-            if (Auth::user()->isAdmin()) {
-                return app()->make(\App\Http\Controllers\Admin\StampCorrectionRequestController::class)->list($request);
-            }
-            return app()->make(\App\Http\Controllers\StampCorrectionRequestController::class)->list($request);
-        })->name('list');
-        // Route::get('/{id}', [StampCorrectionRequestController::class, 'show'])->name('show'); // 古い show ルートはコメントアウトまたは削除
-        Route::get('/pending/{request}', [StampCorrectionRequestController::class, 'showPending'])->name('pending');
-        Route::get('/approved/{request}', [StampCorrectionRequestController::class, 'showApproved'])->name('approved');
-        Route::post('/{id}/approve', [StampCorrectionRequestController::class, 'approve'])
-            ->middleware(['admin'])
-            ->name('approve');
+        Route::get('/list', [\App\Http\Controllers\StampCorrectionRequestController::class, 'list'])->name('list');
+        Route::get('/pending/{request}', [\App\Http\Controllers\StampCorrectionRequestController::class, 'showPending'])->name('pending');
+        Route::get('/approved/{request}', [\App\Http\Controllers\StampCorrectionRequestController::class, 'showApproved'])->name('approved');
     });
 });

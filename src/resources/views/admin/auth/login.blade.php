@@ -1,55 +1,28 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="admin-auth">
-    <div class="admin-auth__box">
-        <h1 class="admin-auth__title">管理者ログイン</h1>
-        
-        @if (session('message'))
-            <div class="admin-auth__message">
-                {{ session('message') }}
-            </div>
-        @endif
+<div class="l-auth-page">
+    <div class="c-card p-admin-login__box">
+        <h1>管理者ログイン</h1>
 
-        @if ($errors->has('general'))
-            <div class="admin-auth__error-message--general">
-                {{ $errors->first('general') }}
-            </div>
-        @endif
+        <x-alert type="info" :message="session('message')" />
+        <x-alert type="danger" class="c-error-message--general" :message="$errors->first('general')" />
 
-        <form method="POST" action="{{ route('admin.login.store') }}" class="admin-auth__form" novalidate>
+        <form method="POST" action="{{ route('admin.login.store') }}" novalidate>
             @csrf
-            <div class="admin-auth__group">
-                <label for="email" class="admin-auth__label">メールアドレス</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="admin-auth__input @error('email') admin-auth__input--error @enderror" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autofocus
-                >
-                @error('email')
-                    <div class="admin-auth__error-message">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-forms.group>
+                <x-forms.label for="email">メールアドレス</x-forms.label>
+                <x-forms.input name="email" type="email" required autofocus />
+                <x-forms.error field="email" />
+            </x-forms.group>
 
-            <div class="admin-auth__group">
-                <label for="password" class="admin-auth__label">パスワード</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="admin-auth__input @error('password') admin-auth__input--error @enderror" 
-                    required
-                >
-                @error('password')
-                    <div class="admin-auth__error-message">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-forms.group>
+                <x-forms.label for="password">パスワード</x-forms.label>
+                <x-forms.input name="password" type="password" required />
+                <x-forms.error field="password" />
+            </x-forms.group>
 
-            <button type="submit" class="admin-auth__button">管理者ログイン</button>
+            <x-button type="submit" variant="primary" class="c-button--auth">管理者ログインする</x-button>
         </form>
     </div>
 </div>

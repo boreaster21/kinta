@@ -26,58 +26,55 @@ class StaffController extends Controller
     {
         $user = User::findOrFail($id);
         $month = $request->get('month', now()->format('Y-m'));
-        
+
+        // Calculate previous and next month strings
+        $currentMonth = Carbon::parse($month . '-01');
+        $previousMonth = $currentMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $currentMonth->copy()->addMonth()->format('Y-m');
+
         $attendances = Attendance::where('user_id', $id)
-            ->whereYear('date', substr($month, 0, 4))
-            ->whereMonth('date', substr($month, 5, 2))
+            ->whereYear('date', $currentMonth->year)
+            ->whereMonth('date', $currentMonth->month)
             ->orderBy('date')
             ->get()
             ->map(function ($attendance) {
-                $attendance->date = Carbon::parse($attendance->date);
-                
-                // 勤務状態の判定
-                if (!$attendance->clock_in) {
-                    $attendance->work_status = '未出勤';
-                } elseif ($attendance->clock_in && !$attendance->clock_out) {
-                    $attendance->work_status = '勤務中';
-                } else {
-                    $attendance->work_status = '勤務済';
-                }
+                // Ensure date is Carbon instance
+                $dateObj = Carbon::parse($attendance->date);
 
-                // 休憩時間の計算
-                $totalBreakMinutes = $attendance->breaks()
-                    ->whereNotNull('start_time')
-                    ->whereNotNull('end_time')
-                    ->get()
-                    ->sum(function ($break) {
-                        return Carbon::parse($break->end_time)
-                            ->diffInMinutes(Carbon::parse($break->start_time));
-                    });
-                $attendance->break_time = sprintf('%02d:%02d', 
-                    intdiv($totalBreakMinutes, 60),
-                    $totalBreakMinutes % 60
-                );
+                // Change date format to MM/DD
+                $formattedDate = $dateObj->format('m/d');
+                $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$dateObj->dayOfWeek];
+                $displayDate = $formattedDate . ' (' . $dayOfWeek . ')';
 
-                // 勤務時間の計算
-                if ($attendance->clock_in && $attendance->clock_out) {
-                    $totalWorkMinutes = Carbon::parse($attendance->clock_out)
-                        ->diffInMinutes(Carbon::parse($attendance->clock_in));
-                    $actualWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
-                    $attendance->work_time = sprintf('%02d:%02d',
-                        intdiv($actualWorkMinutes, 60),
-                        $actualWorkMinutes % 60
-                    );
-                } else {
-                    $attendance->work_time = '--:--';
-                }
+                $clockIn = $attendance->clock_in ? Carbon::parse($attendance->clock_in)->format('H:i') : '-';
+                $clockOut = $attendance->clock_out ? Carbon::parse($attendance->clock_out)->format('H:i') : '-';
 
-                return $attendance;
+                // Use calculated total_break_time and total_work_time if available
+                $breakTime = $attendance->total_break_time ?: '00:00';
+                $totalTime = $attendance->total_work_time ?: '00:00';
+
+                // Format time correctly (remove leading zero for hours)
+                $formatTime = function($timeString) {
+                    if (empty($timeString) || $timeString === '00:00') return '0:00';
+                    return ltrim($timeString, '0');
+                };
+
+                return [
+                    'id' => $attendance->id,
+                    'date' => $displayDate,
+                    'clock_in' => $clockIn,
+                    'clock_out' => $clockOut,
+                    'break_time' => $formatTime($breakTime),
+                    'total_time' => $formatTime($totalTime),
+                ];
             });
 
         return view('admin.staff.monthly_attendance', [
             'user' => $user,
             'attendances' => $attendances,
-            'currentMonth' => $month
+            'month' => $month, // Pass the original month string (YYYY-MM)
+            'previousMonth' => $previousMonth, // Pass previous month string
+            'nextMonth' => $nextMonth, // Pass next month string
         ]);
     }
 }

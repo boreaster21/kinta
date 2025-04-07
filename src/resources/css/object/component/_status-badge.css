@@ -1,0 +1,36 @@
+/* Status Badge Component */
+.c-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.c-status-badge--pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.c-status-badge--approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.c-status-badge--rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Add other statuses if needed */
+/*
+.c-status-badge--info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+.c-status-badge--warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+*/ 

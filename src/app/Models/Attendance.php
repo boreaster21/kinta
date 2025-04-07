@@ -23,7 +23,7 @@ class Attendance extends Model
     ];
 
     protected $casts = [
-        'date' => 'datetime',
+        'date' => 'date',
         'clock_in' => 'datetime',
         'clock_out' => 'datetime',
     ];
@@ -66,7 +66,6 @@ class Attendance extends Model
             }
         }
 
-        // 時間形式に変換して保存
         $this->total_break_time = sprintf('%02d:%02d', 
             intdiv($totalBreakMinutes, 60), 
             $totalBreakMinutes % 60
@@ -101,16 +100,12 @@ class Attendance extends Model
         $clockInTime = Carbon::parse($this->clock_in);
         $clockOutTime = Carbon::parse($this->clock_out);
         
-        // 総勤務時間（分）を計算
         $totalMinutes = $clockInTime->diffInMinutes($clockOutTime);
         
-        // 休憩時間（分）を取得
         $breakMinutes = $this->calculateTotalBreakTime();
         
-        // 実働時間（分）を計算
         $workMinutes = max(0, $totalMinutes - $breakMinutes);
-        
-        // 時間形式に変換して保存
+
         $this->total_work_time = sprintf('%02d:%02d', 
             intdiv($workMinutes, 60), 
             $workMinutes % 60

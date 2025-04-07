@@ -1,0 +1,111 @@
+.c-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #FFFFFF;
+    margin-bottom: 20px;
+}
+
+.c-table th,
+.c-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #E1E1E1;
+    color: #737373;
+}
+
+.c-table th {
+    font-weight: bold;
+    background-color: #f8f9fa;
+    border-bottom-width: 2px;
+}
+
+.c-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.c-table--detail th,
+.c-table--detail td {
+    border: 1px solid #ddd;
+    padding: 15px;
+}
+
+.c-table--detail th {
+    width: 150px;
+    color: #333;
+    border-bottom-width: 1px;
+}
+
+.c-table--detail td {
+    color: #666;
+    text-align: left;
+}
+
+.c-table--detail tbody tr:last-child td {
+    border-bottom: 1px solid #ddd;
+}
+
+.c-table--fixed {
+    table-layout: fixed;
+}
+
+.c-table--comparison th,
+.c-table--comparison td {
+    border: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.c-table--comparison thead th {
+    background-color: #f8f9fa;
+    text-align: center;
+    font-weight: bold;
+}
+
+.c-table--comparison tbody th {
+    font-weight: normal;
+    background-color: #f8f9fa;
+    width: 100px;
+    text-align: right;
+}
+
+.c-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.c-table--fixed td.is-reason-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.c-table--comparison {
+    margin-top: 20px;
+}
+
+.c-table--comparison th {
+    background-color: #f1f1f1;
+    width: 100px;
+    text-align: center;
+}
+
+.c-table--comparison td {
+    text-align: center;
+}
+
+.c-table--comparison .original-value {
+    color: #dc3545;
+    text-decoration: line-through;
+    margin-right: 10px;
+}
+
+.c-table--comparison .modified-value {
+    color: #28a745;
+    font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+    .c-table--comparison {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

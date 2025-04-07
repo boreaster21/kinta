@@ -42,7 +42,7 @@ class StampCorrectionRequestController extends Controller
                     })->join('<br>'),
                     'reason' => $request->reason,
                     'status' => $request->status,
-                    'created_at' => Carbon::parse($request->created_at)->format('Y/m/d H:i'),
+                    'created_at' => Carbon::parse($request->created_at)->format('Y/m/d'),
                     'approved_at' => $request->approved_at ? Carbon::parse($request->approved_at)->format('Y/m/d H:i') : null,
                     'detail_url' => $request->status === 'approved'
                         ? route('stamp_correction_request.approved', $request->id)
@@ -181,44 +181,71 @@ class StampCorrectionRequestController extends Controller
     public function list(Request $request)
     {
         $status = $request->query('status', 'pending');
-        $query = StampCorrectionRequest::with(['attendance'])
-            ->where('user_id', Auth::id())
+        $user = Auth::user();
+        $isAdmin = $user->isAdmin();
+
+        $query = StampCorrectionRequest::with(['user', 'attendance'])
             ->orderBy('created_at', 'desc');
 
-        if ($status === 'pending') {
-            $query->where('status', 'pending');
-        } elseif ($status === 'processed') {
-            $query->whereIn('status', ['approved', 'rejected']);
+        if (!$isAdmin) {
+            $query->where('user_id', $user->id);
         }
 
-        $requests = $query->get()->map(function ($request) use ($status) {
+        if (in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $status);
+        } else {
+            $query->where('status', 'pending');
+            $status = 'pending';
+        }
+
+        $requests = $query->simplePaginate(15);
+
+        $requestsCollection = $requests->getCollection()->map(function ($request) use ($isAdmin) {
+            $detailUrl = '#';
+            $buttonVariant = 'secondary';
+            if ($isAdmin) {
+                if ($request->status === 'pending') {
+                    $detailUrl = route('admin.stamp_correction_request.show', $request->id);
+                    $buttonVariant = 'primary';
+                } elseif ($request->status === 'approved') {
+                    $detailUrl = route('admin.stamp_correction_request.approved', $request->id);
+                }
+            } else {
+                if ($request->status === 'pending') {
+                    $detailUrl = route('stamp_correction_request.pending', $request->id);
+                    $buttonVariant = 'primary';
+                } elseif ($request->status === 'approved') {
+                    $detailUrl = route('stamp_correction_request.approved', $request->id);
+                }
+            }
+
             return [
                 'id' => $request->id,
+                'user_name' => $request->user->name,
                 'date' => Carbon::parse($request->attendance->date)->format('Y/m/d'),
+                'reason' => $request->reason,
+                'status' => $request->status,
+                'created_at' => Carbon::parse($request->created_at)->format('Y/m/d'),
+                'detail_url' => $detailUrl,
                 'clock_in' => Carbon::parse($request->clock_in)->format('H:i'),
                 'clock_out' => Carbon::parse($request->clock_out)->format('H:i'),
                 'break_times' => collect($request->break_start)->map(function ($start, $index) use ($request) {
-                    return $start . ' - ' . $request->break_end[$index];
+                    return ($start ?? '-') . ' - ' . ($request->break_end[$index] ?? '-');
                 })->join('<br>'),
-                'reason' => $request->reason,
-                'status' => $request->status,
-                'created_at' => Carbon::parse($request->created_at)->format('Y/m/d H:i'),
                 'approved_at' => $request->approved_at ? Carbon::parse($request->approved_at)->format('Y/m/d H:i') : null,
-                'detail_url' => $request->status === 'pending'
-                    ? route('stamp_correction_request.pending', $request->id)
-                    : route('stamp_correction_request.approved', $request->id)
             ];
         });
 
+        $requests->setCollection($requestsCollection);
+
         return view('stamp_correction_request.list', [
             'requests' => $requests,
-            'status' => $status
+            'status' => $status,
+            'isAdmin' => $isAdmin
         ]);
     }
 
     /**
-     * 承認待ち修正申請の詳細を表示
-     *
      * @param int $id 修正申請ID
      * @return \Illuminate\View\View
      */
@@ -253,8 +280,12 @@ class StampCorrectionRequestController extends Controller
 
     public function showApproved(StampCorrectionRequest $request)
     {
-        if ($request->user_id !== Auth::id()) {
+        if (!Auth::user()->isAdmin() && $request->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        if ($request->status !== 'approved') {
+             abort(404, '承認済みの申請ではありません。');
         }
 
         $data = [

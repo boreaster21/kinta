@@ -14,7 +14,7 @@ class AdminMiddleware
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            
+
             return redirect('/admin/login')->withErrors([
                 'general' => '管理者権限が必要です。'
             ]);

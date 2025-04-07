@@ -1,0 +1,110 @@
+/* === Request List === */
+.p-request-list {
+    /* Keep container specific padding/max-width if necessary */
+    /* padding: 20px; */
+    /* max-width: 1200px; */
+    /* margin: 0 auto; */
+}
+
+/* .p-request-list__title is removed (use .c-title) */
+/* .p-request-list__message is removed (use .c-alert directly) */
+
+.p-request-list__tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.p-request-list__tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-right: 5px;
+    font-weight: 500;
+    color: #495057;
+    text-decoration: none;
+}
+
+.p-request-list__tab--active {
+    background-color: #fff;
+    border-bottom: 2px solid #fff;
+    color: #000;
+    font-weight: bold;
+}
+
+.p-request-list__container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+/* Removed: .p-request-list__table tr:hover (Move to _table.css if desired) */
+/* Removed: .p-request-list__reason-cell (Move to _table.css if desired for fixed layout tables) */
+/* Status styles are moved to .c-status-badge component */
+/* .p-request-list__status, .p-request-list__status--pending, etc. are removed */
+/* .p-request-list__detail-link is removed (use .c-button--link or similar) */
+
+
+/* === Admin Request Approve === */
+.p-admin-request-approve {
+    /* Keep container specific styles if necessary */
+    /* padding: 20px; */
+    /* max-width: 900px; */
+    /* margin: 30px auto; */
+}
+
+/* .p-admin-request-approve__title is removed (not used) */
+
+.p-admin-request-approve__info {
+    /* Keep if needed for structuring info sections */
+}
+
+.p-admin-request-approve__comparison-container {
+     margin-bottom: 30px;
+}
+
+.p-admin-request-approve__comparison-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.p-admin-request-approve__actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Replace specific button class with context */
+.p-admin-request-approve__actions .c-button {
+    min-width: 140px;
+}
+/* .p-admin-request-approve__button is removed */
+
+.p-admin-request-approve__form {}
+
+/* .p-request-detail__button--* are removed (use standard button classes/variants) */
+
+
+/* === Responsive === */
+@media screen and (max-width: 768px) {
+    .p-admin-request-approve__actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    /* Adjust context-based button style for mobile */
+    .p-admin-request-approve__actions .c-button {
+        min-width: initial; /* Reset min-width */
+        width: 100%;
+        max-width: 250px;
+    }
+    /* Removed: .c-table--comparison responsive styles (moved to _table.css) */
+}

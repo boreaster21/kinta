@@ -11,7 +11,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // グローバルミドルウェア
         $middleware->web([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
@@ -21,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
 
-        // ミドルウェアエイリアス
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminAuthMiddleware::class,
             'auth.admin' => \App\Http\Middleware\AdminAuthMiddleware::class,

@@ -1,45 +1,44 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
-<div class="monthly-attendance">
-    <h2 class="monthly-attendance__title">{{ $user->name }}さんの勤怠一覧</h2>
+<div class="l-container p-admin-monthly-attendance">
+    <h2 class="c-title">{{ $user->name }}さんの勤怠</h2>
 
-    <div class="monthly-attendance__nav">
-        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $user->id, 'month' => Carbon\Carbon::parse($currentMonth)->subMonth()->format('Y-m')]) }}" class="monthly-attendance__nav-button">
-            前月
-        </a>
-        <span class="monthly-attendance__current-month">
-            {{ Carbon\Carbon::parse($currentMonth)->format('Y年n月') }}
-        </span>
-        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $user->id, 'month' => Carbon\Carbon::parse($currentMonth)->addMonth()->format('Y-m')]) }}" class="monthly-attendance__nav-button">
-            翌月
-        </a>
+    <div class="c-list-controls">
+        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $user->id, 'month' => $previousMonth]) }}" class="c-list-controls__link">← 前月</a>
+        <div class="c-list-controls__label-wrapper">
+            <img src="{{ asset('img/calendar.png') }}" alt="カレンダー" class="c-icon p-admin-monthly-attendance__icon">
+            <span class="c-list-controls__label">{{ Carbon\Carbon::parse($month)->format('Y年m月') }}</span>
+        </div>
+        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $user->id, 'month' => $nextMonth]) }}" class="c-list-controls__link">翌月 →</a>
     </div>
 
-    <div class="monthly-attendance__container">
-        <table class="monthly-attendance__table">
+    <div class="c-card p-admin-monthly-attendance__container">
+        <table class="c-table">
             <thead>
                 <tr>
                     <th>日付</th>
                     <th>出勤</th>
-                    <th>退勤時</th>
+                    <th>退勤</th>
                     <th>休憩</th>
                     <th>合計</th>
                     <th>詳細</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($attendances as $attendance)
+                @foreach ($attendances as $attendance)
                 <tr>
-                    <td>{{ $attendance->date->format('Y/m/d') }} ({{ ['日', '月', '火', '水', '木', '金', '土'][$attendance->date->dayOfWeek] }})</td>
-                    <td>{{ $attendance->clock_in ? Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '--:--' }}</td>
-                    <td>{{ $attendance->clock_out ? Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '--:--' }}</td>
-                    <td>{{ $attendance->total_break_time ?? '00:00' }}</td>
-                    <td>{{ $attendance->total_work_time ?? '00:00' }}</td>
+                    <td>{{ $attendance['date'] }}</td>
+                    <td>{{ $attendance['clock_in'] }}</td>
+                    <td>{{ $attendance['clock_out'] }}</td>
+                    <td>{{ $attendance['break_time'] }}</td>
+                    <td>{{ $attendance['total_time'] }}</td>
                     <td>
-                        <a href="{{ route('attendance.show', ['id' => $attendance->id]) }}" class="monthly-attendance__button">
-                            詳細
-                        </a>
+                        @if($attendance['id'])
+                        <x-button as="a" :href="route('attendance.show', ['id' => $attendance['id']])" variant="secondary" size="sm">詳細</x-button>
+                        @else
+                        -
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -47,11 +46,8 @@
         </table>
     </div>
 
-    {{-- CSV出力ボタンを追加 --}}
-    <div class="monthly-attendance__export">
-        <a href="{{ route('admin.staff.monthly_attendance.export', ['id' => $user->id, 'month' => $currentMonth]) }}" class="monthly-attendance__export-button">
-            CSV出力
-        </a>
+    <div class="p-admin-monthly-attendance__export">
+        <x-button as="a" :href="route('admin.staff.monthly_attendance.export', ['id' => $user->id, 'month' => $month])" variant="secondary" class="p-admin-monthly-attendance__export-button">CSV出力</x-button>
     </div>
 </div>
 @endsection

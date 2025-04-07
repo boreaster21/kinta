@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="attendance-list">
-    <h2 class="page-title">勤怠一覧</h2>
+<div class="l-container p-attendance-list">
+    <h2 class="c-title">勤怠一覧</h2>
 
-    <div class="attendance-list__controls">
-        <a href="{{ route('attendance.list', ['month' => $previousMonth]) }}" class="attendance-list__nav">← 前月</a>
-        <div class="attendance-list__month-wrapper">
-            <img src="{{ asset('img/calendar.png') }}" alt="カレンダー" class="calendar-icon">
-            <span class="attendance-list__month">{{ \Carbon\Carbon::parse($month)->format('Y/m') }}</span>
+    <div class="c-list-controls">
+        <a href="{{ route('attendance.list', ['month' => $previousMonth]) }}" class="c-list-controls__link">← 前月</a>
+        <div class="c-list-controls__label-wrapper">
+            <img src="{{ asset('img/calendar.png') }}" alt="カレンダー" class="c-icon p-attendance-list__icon">
+            <span class="c-list-controls__label">{{ \Carbon\Carbon::parse($month)->format('Y/m') }}</span>
         </div>
-        <a href="{{ route('attendance.list', ['month' => $nextMonth]) }}" class="attendance-list__nav">翌月 →</a>
+        <a href="{{ route('attendance.list', ['month' => $nextMonth]) }}" class="c-list-controls__link">翌月 →</a>
     </div>
 
-    <table class="attendance-list__table">
+    <table class="c-table">
         <thead>
             <tr>
                 <th>日付</th>
@@ -33,7 +33,7 @@
                 <td>{{ $attendance['break_time'] }}</td>
                 <td>{{ $attendance['total_time'] }}</td>
                 <td>
-                    <a href="{{ route('attendance.show', ['id' => $attendance['id']]) }}" class="attendance-list__detail">詳細</a>
+                    <x-button as="a" :href="route('attendance.show', ['id' => $attendance['id']])" variant="secondary" size="sm" class="p-attendance-list__detail-button">詳細</x-button>
                 </td>
             </tr>
             @endforeach
@@ -41,3 +41,4 @@
     </table>
 </div>
 @endsection
+

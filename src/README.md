@@ -1,70 +1,182 @@
-<<<<<<< HEAD
-# kinta
-=======
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# coachtech 勤怠アプリ
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+このアプリケーションは、従業員の勤怠打刻、休憩管理、修正申請を行うための勤怠管理システムです。
 
-## About Laravel
+## 環境構築 (Docker)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 必要なもの
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   Docker
+-   Docker Compose
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 手順
 
-## Learning Laravel
+1.  **リポジトリのクローン:**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    ```bash
+    git clone [リポジトリのURL]
+    cd [クローンしたディレクトリ名]
+    ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2.  **環境変数の設定:**
+    `.env.example` ファイルをコピーして `.env` ファイルを作成し、必要に応じてデータベース接続情報などを編集します。
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    ```bash
+    cp .env.example .env
+    ```
 
-## Laravel Sponsors
+3.  **Docker コンテナのビルドと起動:**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+    ```bash
+    docker-compose up -d --build
+    ```
 
-### Premium Partners
+    -   _注意:_ MySQL コンテナは、お使いの OS や環境によっては正常に起動しない場合があります。その場合は、`compose.yaml` ファイル内の MySQL サービス定義（ポートやボリュームなど）を適宜調整してください。
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4.  **PHP コンテナへのアクセス:**
 
-## Contributing
+    ```bash
+    docker-compose exec php bash
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5.  **(PHP コンテナ内) Composer パッケージのインストール:**
 
-## Code of Conduct
+    ```bash
+    composer install
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6.  **(PHP コンテナ内) アプリケーションキーの生成:**
 
-## Security Vulnerabilities
+    ```bash
+    php artisan key:generate
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7.  **(PHP コンテナ内) データベースマイグレーション:**
 
-## License
+    ```bash
+    php artisan migrate
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
->>>>>>> d986bf7 (Add Laravel project files)
+8.  **(PHP コンテナ内) データベースシーディング (テストデータの投入):**
+
+    ```bash
+    php artisan db:seed
+    ```
+
+9.  **コンテナからの退出:**
+    ```bash
+    exit
+    ```
+
+これで環境構築は完了です。
+
+## 使用技術
+
+-   **PHP:** 11 (※ PHP のバージョンは `docker-compose.yaml` または `Dockerfile` をご確認ください。)
+-   **フレームワーク:** Laravel 11.x
+-   **データベース:** MySQL (バージョンは `compose.yaml` をご確認ください)
+-   **Web サーバー:** Nginx ( `compose.yaml` をご確認ください)
+-   **コンテナ仮想化:** Docker, Docker Compose
+
+## ER 図
+
+```mermaid
+erDiagram
+    USERS ||--o{ ATTENDANCES : "has"
+    USERS ||--o{ STAMP_CORRECTION_REQUESTS : "requests"
+    USERS |o--o{ STAMP_CORRECTION_REQUESTS : "approves/rejects"
+    USERS ||--o{ ATTENDANCE_MODIFICATION_HISTORY : "modifies"
+    ROLES ||--o{ USERS : "has"
+    ATTENDANCES ||--o{ BREAK_TIMES : "has"
+    ATTENDANCES ||--o{ STAMP_CORRECTION_REQUESTS : "targets"
+    ATTENDANCES ||--o{ ATTENDANCE_MODIFICATION_HISTORY : "history for"
+
+    USERS {
+        int id PK
+        string name
+        string email UK
+        int role_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ROLES {
+        int id PK
+        string name UK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ATTENDANCES {
+        int id PK
+        int user_id FK
+        date date
+        timestamp clock_in NULL
+        timestamp clock_out NULL
+        string total_break_time
+        string total_work_time
+        text reason NULL
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    BREAK_TIMES {
+        int id PK
+        int attendance_id FK
+        timestamp start_time
+        timestamp end_time NULL
+        int duration
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    STAMP_CORRECTION_REQUESTS {
+        int id PK
+        int user_id FK "applicant"
+        int attendance_id FK
+        timestamp clock_in
+        timestamp clock_out
+        json break_start
+        json break_end
+        text reason NULL
+        enum status
+        timestamp approved_at NULL
+        timestamp rejected_at NULL
+        int approved_by FK NULL "approver"
+        int rejected_by FK NULL "rejector"
+        timestamp original_clock_in NULL
+        timestamp original_clock_out NULL
+        json original_break_start NULL
+        json original_break_end NULL
+        text original_reason NULL
+        timestamp created_at
+        timestamp updated_at
+    }
+
+     ATTENDANCE_MODIFICATION_HISTORY {
+        int id PK
+        int attendance_id FK
+        int modified_by FK
+        enum modification_type
+        timestamp clock_in NULL
+        timestamp clock_out NULL
+        string total_break_time NULL
+        string total_work_time NULL
+        text reason NULL
+        timestamp created_at
+        timestamp updated_at
+    }
+```
+
+## URL
+
+-   **開発環境:** [http://localhost/](http://localhost/)
+-   **phpMyAdmin:** [http://localhost:8080/](http://localhost:8080/) ( `compose.yaml` でポートが変更されている場合は調整してください)
+
+## ログイン情報 (シーディング後)
+
+-   **管理者ユーザー:**
+    -   メールアドレス: `admin@example.com`
+    -   パスワード: `adminpass`
+-   **一般ユーザー:**
+    -   `UserSeeder` で作成されたユーザー情報をご確認ください (メールアドレス/パスワード: `password`)。

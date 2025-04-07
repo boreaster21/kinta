@@ -1,0 +1,27 @@
+.c-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.is-admin .c-card {
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    max-width: none;
+    padding: 20px;
+}
+
+.p-admin-request-approve .c-card {
+    max-width: none;
+}
+
+.c-card--verify-email {
+    max-width: 28rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    overflow: hidden;
+}
+

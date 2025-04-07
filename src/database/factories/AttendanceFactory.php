@@ -21,8 +21,8 @@ class AttendanceFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
             'date' => $date,
-            'clock_in' => $clockIn->format('Y-m-d H:i:s'), 
-            'clock_out' => $clockOut->format('Y-m-d H:i:s'), 
+            'clock_in' => $clockIn->format('Y-m-d H:i:s'),
+            'clock_out' => $clockOut->format('Y-m-d H:i:s'),
             'total_break_time' => '01:00', 
             'total_work_time' => sprintf('%02d:%02d', intdiv($totalMinutes, 60), abs($totalMinutes % 60)),
         ];

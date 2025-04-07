@@ -1,62 +1,104 @@
-@extends('layouts.app')
+@extends($isAdmin ? 'layouts.admin' : 'layouts.app')
 
 @section('content')
-<div class="request-list">
-    <h2 class="page-title">申請一覧</h2>
+<div class="l-container p-request-list {{ $isAdmin ? 'p-admin-request-list' : '' }}">
+    <h2 class="c-title {{ $isAdmin ? 'c-title--admin' : '' }} p-request-list__title">
+        申請一覧
+    </h2>
 
     @if (session('message'))
-    <div class="request-list__message request-list__message--success">
-        {{ session('message') }}
-    </div>
+        <x-alert type="success" :message="session('message')" />
     @endif
 
-    <div class="request-list__tabs">
-        <a href="{{ route('stamp_correction_request.list', ['status' => 'pending']) }}" 
-           class="request-list__tab {{ $status === 'pending' ? 'request-list__tab--active' : '' }}">
+    <div class="p-request-list__tabs">
+        <a href="{{ route('stamp_correction_request.list', ['status' => 'pending']) }}"
+           class="p-request-list__tab {{ $status === 'pending' ? 'p-request-list__tab--active' : '' }}">
             承認待ち
         </a>
-        <a href="{{ route('stamp_correction_request.list', ['status' => 'processed']) }}" 
-           class="request-list__tab {{ $status === 'processed' ? 'request-list__tab--active' : '' }}">
+        <a href="{{ route('stamp_correction_request.list', ['status' => 'approved']) }}"
+           class="p-request-list__tab {{ $status === 'approved' ? 'p-request-list__tab--active' : '' }}">
             承認済み
+        </a>
+        <a href="{{ route('stamp_correction_request.list', ['status' => 'rejected']) }}"
+           class="p-request-list__tab {{ $status === 'rejected' ? 'p-request-list__tab--active' : '' }}">
+            却下
         </a>
     </div>
 
-    <div class="request-list__container">
-        <table class="request-list__table">
+    <div class="p-request-list__container {{ $isAdmin ? 'c-card c-card--admin' : '' }}">
+        <table class="c-table c-table--fixed">
             <thead>
                 <tr>
-                    <th>状態</th>
-                    <th>対象日時</th>
-                    <th>申請理由</th>
-                    <th>申請日時</th>
-                    <th>詳細</th>
+                    <th style="width: 10%;">状態</th>
+                    @if($isAdmin)
+                    <th style="width: 15%;">名前</th>
+                    @endif
+                    <th style="width: 15%;">対象日時</th>
+                    <th style="width: 30%;">申請理由</th>
+                    <th style="width: 15%;">申請日時</th>
+                    <th style="width: 15%;">詳細</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($requests as $request)
+                @forelse ($requests as $request)
                 <tr>
                     <td>
-                        @if($request['status'] === 'pending')
-                        <span class="request-list__status request-list__status--pending">承認待ち</span>
-                        @elseif($request['status'] === 'approved')
-                        <span class="request-list__status request-list__status--approved">承認済み</span>
-                        @else
-                        <span class="request-list__status request-list__status--rejected">却下</span>
-                        @endif
+                        <span @class([
+                            'c-status-badge',
+                            'c-status-badge--pending' => $request['status'] === 'pending',
+                            'c-status-badge--approved' => $request['status'] === 'approved',
+                            'c-status-badge--rejected' => $request['status'] === 'rejected',
+                        ])>
+                            {{ match($request['status']) {
+                                'pending' => '承認待ち',
+                                'approved' => '承認済',
+                                'rejected' => '却下',
+                                default => $request['status'],
+                            } }}
+                        </span>
                     </td>
+                    @if($isAdmin)
+                    <td>{{ $request['user_name'] }}</td>
+                    @endif
                     <td>{{ $request['date'] }}</td>
-                    <td>{{ $request['reason'] }}</td>
+                    <td class="is-reason-cell" title="{{ $request['reason'] }}">{{ $request['reason'] }}</td>
                     <td>{{ $request['created_at'] }}</td>
                     <td>
-                        <a href="{{ $request['detail_url'] }}" 
-                           class="request-list__detail-link">
-                            詳細
-                        </a>
+                        @php
+                            $detailUrl = '#'; // Default for rejected or unknown
+                            $buttonVariant = 'secondary';
+                            if ($isAdmin) {
+                                if ($request['status'] === 'pending') {
+                                    $detailUrl = route('admin.stamp_correction_request.show', $request['id']); // Correct route for admin approval form
+                                    $buttonVariant = 'primary';
+                                } elseif ($request['status'] === 'approved') {
+                                    $detailUrl = route('stamp_correction_request.approved', $request['id']);
+                                }
+                            } else {
+                                if ($request['status'] === 'pending') {
+                                    $detailUrl = route('stamp_correction_request.pending', $request['id']); // Correct route for user pending view
+                                    $buttonVariant = 'primary';
+                                } elseif ($request['status'] === 'approved') {
+                                    $detailUrl = route('stamp_correction_request.approved', $request['id']); // Correct route for user approved view
+                                }
+                            }
+                        @endphp
+                        <x-button as="a" :href="$detailUrl" :variant="$buttonVariant" size="sm" :disabled="$detailUrl === '#'">詳細</x-button>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="{{ $isAdmin ? 6 : 5 }}" style="text-align: center;">該当する申請はありません。</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-4">
+        @if(method_exists($requests, 'links'))
+            {{ $requests->links() }}
+        @endif
     </div>
 </div>
 @endsection

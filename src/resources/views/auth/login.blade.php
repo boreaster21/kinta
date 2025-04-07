@@ -1,53 +1,33 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="auth">
-    <div class="auth__box">
-        <h2 class="auth__title">ログイン</h2>
+<div class="l-auth-page">
+    <div class="c-card">
+        <h2>ログイン</h2>
 
-        @if ($errors->has('general'))
-            <div class="auth__error-message auth__error-message--general">
-                {{ $errors->first('general') }}
-            </div>
-        @endif
+        <x-alert type="danger" class="c-error-message--general">
+            {{ $errors->first('general') }}
+        </x-alert>
 
-        <form method="POST" action="{{ route('login') }}" class="auth__form" novalidate>
+        <form method="POST" action="{{ route('login') }}" novalidate>
             @csrf
-            <div class="auth__group">
-                <label for="email" class="auth__label">メールアドレス</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="auth__input @error('email') auth__input--error @enderror" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autofocus
-                >
-                @error('email')
-                    <div class="auth__error-message">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-forms.group>
+                <x-forms.label for="email">メールアドレス</x-forms.label>
+                <x-forms.input name="email" type="email" required autofocus />
+                <x-forms.error field="email" />
+            </x-forms.group>
 
-            <div class="auth__group">
-                <label for="password" class="auth__label">パスワード</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="auth__input @error('password') auth__input--error @enderror" 
-                    required
-                >
-                @error('password')
-                    <div class="auth__error-message">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-forms.group>
+                <x-forms.label for="password">パスワード</x-forms.label>
+                <x-forms.input name="password" type="password" required />
+                <x-forms.error field="password" />
+            </x-forms.group>
 
-            <button type="submit" class="auth__button">ログイン</button>
+            <x-button type="submit" variant="primary" class="c-button--auth">ログインする</x-button>
         </form>
 
-        <div class="auth__links">
-            アカウントをお持ちでない方は <a href="{{ route('register') }}" class="auth__link">会員登録はこちら</a>
+        <div class="auth-links">
+            <a href="{{ route('register') }}" class="c-link">会員登録はこちら</a>
         </div>
     </div>
 </div>

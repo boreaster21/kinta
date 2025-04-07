@@ -1,11 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
-<div class="staff-list">
-    <h2 class="staff-list__title">スタッフ一覧</h2>
+<div class="l-container p-admin-staff-list">
+    <h2 class="c-title p-admin-staff-list__title">スタッフ一覧</h2>
 
-    <div class="staff-list__container">
-        <table class="staff-list__table">
+    <div class="c-card p-admin-staff-list__container">
+        <table class="c-table p-admin-staff-list__table">
             <thead>
                 <tr>
                     <th>名前</th>
@@ -19,7 +19,7 @@
                     <td>{{ $staff->name }}</td>
                     <td>{{ $staff->email }}</td>
                     <td>
-                        <a href="{{ route('admin.staff.monthly_attendance', ['id' => $staff->id]) }}" class="staff-list__button">詳細</a>
+                        <x-button as="a" :href="route('admin.staff.monthly_attendance', ['id' => $staff->id])" variant="secondary" size="sm" class="p-admin-staff-list__detail-button">詳細</x-button>
                     </td>
                 </tr>
                 @endforeach
@@ -27,4 +27,4 @@
         </table>
     </div>
 </div>
-@endsection 
+@endsection

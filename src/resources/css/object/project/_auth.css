@@ -1,0 +1,58 @@
+.l-auth-page .c-card {
+}
+
+.l-auth-page .c-card h1,
+.l-auth-page .c-card h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    border-left: none;
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+}
+
+.l-auth-page .c-card form {
+    margin-top: 1.5rem;
+}
+
+.l-auth-page .c-button--auth {
+    margin-top: 10px;
+}
+
+.l-auth-page .auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.l-auth-page .auth-links .c-link {
+    color: #666;
+}
+
+.l-auth-page--verify-email .c-card--verify-email {
+    text-align: center;
+}
+
+.l-auth-page--verify-email .p-verify-email__title {
+    line-height: 2rem;
+    font-weight: 700;
+}
+
+.l-auth-page--verify-email .p-verify-email__message {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgb(55 65 81);
+    margin-bottom: 1.5rem;
+}
+
+.l-auth-page--verify-email .p-verify-email__action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+@media screen and (min-width: 1400px) and (max-width: 1540px) {}
+
+@media screen and (min-width: 768px) and (max-width: 850px) {}
+
+@media screen and (max-width: 768px) {}
