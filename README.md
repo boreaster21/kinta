@@ -97,15 +97,13 @@ erDiagram
         string email UK
         int role_id FK
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 
     ROLES {
         int id PK
         string name UK
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 
     ATTENDANCES {
         int id PK
@@ -117,8 +115,7 @@ erDiagram
         string total_work_time
         text reason NULL
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 
     BREAK_TIMES {
         int id PK
@@ -127,8 +124,7 @@ erDiagram
         timestamp end_time NULL
         int duration
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 
     STAMP_CORRECTION_REQUESTS {
         int id PK
@@ -152,8 +148,7 @@ erDiagram
         json original_break_end NULL
         text original_reason NULL
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 
     ATTENDANCE_MODIFICATION_HISTORY {
         int id PK
@@ -166,8 +161,7 @@ erDiagram
         string total_work_time NULL
         text reason NULL
         timestamp created_at
-        timestamp updated_at
-    }
+        timestamp updated_at }
 ```
 
 ## URL
