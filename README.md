@@ -97,71 +97,77 @@ erDiagram
         string email UK
         int role_id FK
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 
     ROLES {
         int id PK
         string name UK
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 
     ATTENDANCES {
         int id PK
         int user_id FK
         date date
-        timestamp clock_in NULL
-        timestamp clock_out NULL
+        timestamp clock_in
+        timestamp clock_out
         string total_break_time
         string total_work_time
-        text reason NULL
+        text reason
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 
     BREAK_TIMES {
         int id PK
         int attendance_id FK
         timestamp start_time
-        timestamp end_time NULL
+        timestamp end_time
         int duration
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 
     STAMP_CORRECTION_REQUESTS {
         int id PK
-        int user_id FK "applicant"
+        int user_id FK
         int attendance_id FK
         date date
         timestamp clock_in
         timestamp clock_out
         json break_start
         json break_end
-        text reason NULL
+        text reason
         enum status
-        timestamp approved_at NULL
-        timestamp rejected_at NULL
-        int approved_by FK NULL "approver"
-        int rejected_by FK NULL "rejector"
-        date original_date NULL
-        timestamp original_clock_in NULL
-        timestamp original_clock_out NULL
-        json original_break_start NULL
-        json original_break_end NULL
-        text original_reason NULL
+        timestamp approved_at
+        timestamp rejected_at
+        int approved_by FK
+        int rejected_by FK
+        date original_date
+        timestamp original_clock_in
+        timestamp original_clock_out
+        json original_break_start
+        json original_break_end
+        text original_reason
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 
     ATTENDANCE_MODIFICATION_HISTORY {
         int id PK
         int attendance_id FK
         int modified_by FK
         enum modification_type
-        timestamp clock_in NULL
-        timestamp clock_out NULL
-        string total_break_time NULL
-        string total_work_time NULL
-        text reason NULL
+        timestamp clock_in
+        timestamp clock_out
+        string total_break_time
+        string total_work_time
+        text reason
         timestamp created_at
-        timestamp updated_at }
+        timestamp updated_at
+    }
 ```
 
 ## URL
