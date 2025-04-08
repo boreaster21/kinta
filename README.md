@@ -134,6 +134,7 @@ erDiagram
         int id PK
         int user_id FK "applicant"
         int attendance_id FK
+        date date
         timestamp clock_in
         timestamp clock_out
         json break_start
@@ -144,6 +145,7 @@ erDiagram
         timestamp rejected_at NULL
         int approved_by FK NULL "approver"
         int rejected_by FK NULL "rejector"
+        date original_date NULL
         timestamp original_clock_in NULL
         timestamp original_clock_out NULL
         json original_break_start NULL
@@ -153,7 +155,7 @@ erDiagram
         timestamp updated_at
     }
 
-     ATTENDANCE_MODIFICATION_HISTORY {
+    ATTENDANCE_MODIFICATION_HISTORY {
         int id PK
         int attendance_id FK
         int modified_by FK
