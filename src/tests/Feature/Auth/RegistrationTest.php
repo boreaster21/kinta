@@ -35,7 +35,7 @@ class RegistrationTest extends TestCase
     #[Test]
     public function registration_fails_when_name_is_missing(): void
     {
-        $userData = $this->validUserData(['name' => '']); 
+        $userData = $this->validUserData(['name' => '']);
         $response = $this->post('/register', $userData);
 
         $response->assertStatus(302);
@@ -45,7 +45,7 @@ class RegistrationTest extends TestCase
     #[Test]
     public function registration_fails_when_email_is_missing(): void
     {
-        $userData = $this->validUserData(['email' => '']); 
+        $userData = $this->validUserData(['email' => '']);
         $response = $this->post('/register', $userData);
 
         $response->assertStatus(302);
@@ -68,7 +68,7 @@ class RegistrationTest extends TestCase
     #[Test]
     public function registration_fails_when_password_confirmation_does_not_match(): void
     {
-        $userData = $this->validUserData(['password_confirmation' => 'different']); 
+        $userData = $this->validUserData(['password_confirmation' => 'different']);
         $response = $this->post('/register', $userData);
 
         $response->assertStatus(302);
@@ -91,7 +91,7 @@ class RegistrationTest extends TestCase
     #[Test]
     public function user_can_register_with_valid_data(): void
     {
-        $userData = $this->validUserData(); // 有効なデータを使用
+        $userData = $this->validUserData();// 有効なデータを使用 
         $response = $this->post('/register', $userData);
         $this->assertDatabaseHas('users', [
             'email' => $userData['email'],

@@ -103,7 +103,7 @@ class Attendance extends Model
         $totalMinutes = $clockInTime->diffInMinutes($clockOutTime);
         
         $breakMinutes = $this->calculateTotalBreakTime();
-        
+
         $workMinutes = max(0, $totalMinutes - $breakMinutes);
 
         $this->total_work_time = sprintf('%02d:%02d', 

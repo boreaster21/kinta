@@ -181,4 +181,5 @@ erDiagram
     -   メールアドレス: `admin@example.com`
     -   パスワード: `adminpass`
 -   **一般ユーザー:**
-    -   `UserSeeder` で作成されたユーザー情報をご確認ください (メールアドレス/パスワード: `password`)。
+    -   メールアドレス: `test@example.com`
+    -   パスワード: `testpass`

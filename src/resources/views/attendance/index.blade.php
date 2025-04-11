@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="l-container l-container--narrow p-attendance-stamp">
-    {{-- Alert component usage --}}
     <x-alert type="success" :message="session('success')" />
     <x-alert type="danger" :message="session('error')" />
     <x-alert type="warning" :message="session('warning')" />

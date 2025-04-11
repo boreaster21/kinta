@@ -86,7 +86,7 @@ class AttendanceController extends Controller
 
             $startTime = Carbon::today()->setHour(4)->setMinute(0);
             $endTime = Carbon::today()->setHour(22)->setMinute(0);
-            
+
             if ($now->lt($startTime) || $now->gt($endTime)) {
                 return redirect()
                     ->route('attendance.index')
