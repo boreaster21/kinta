@@ -6,8 +6,8 @@
 
 ### 必要なもの
 
--   Docker
--   Docker Compose
+- Docker
+- Docker Compose
 
 ### 手順
 
@@ -31,7 +31,7 @@
     docker-compose up -d --build
     ```
 
-    -   _注意:_ MySQL コンテナは、お使いの OS や環境によっては正常に起動しない場合があります。その場合は、`compose.yaml` ファイル内の MySQL サービス定義（ポートやボリュームなど）を適宜調整してください。
+    - _注意:_ MySQL コンテナは、お使いの OS や環境によっては正常に起動しない場合があります。その場合は、`compose.yaml` ファイル内の MySQL サービス定義（ポートやボリュームなど）を適宜調整してください。
 
 4.  **PHP コンテナへのアクセス:**
 
@@ -72,11 +72,11 @@
 
 ## 使用技術
 
--   **PHP:** 11 (※ PHP のバージョンは `docker-compose.yaml` または `Dockerfile` をご確認ください。)
--   **フレームワーク:** Laravel 11.x
--   **データベース:** MySQL (バージョンは `compose.yaml` をご確認ください)
--   **Web サーバー:** Nginx ( `compose.yaml` をご確認ください)
--   **コンテナ仮想化:** Docker, Docker Compose
+- **PHP:** 11 (※ PHP のバージョンは `docker-compose.yaml` または `Dockerfile` をご確認ください。)
+- **フレームワーク:** Laravel 11.x
+- **データベース:** MySQL (バージョンは `compose.yaml` をご確認ください)
+- **Web サーバー:** Nginx ( `compose.yaml` をご確認ください)
+- **コンテナ仮想化:** Docker, Docker Compose
 
 ## ER 図
 
@@ -172,13 +172,60 @@ erDiagram
 
 ## URL
 
--   **開発環境:** [http://localhost/](http://localhost/)
--   **phpMyAdmin:** [http://localhost:8080/](http://localhost:8080/) ( `compose.yaml` でポートが変更されている場合は調整してください)
+- **開発環境:** [http://localhost/](http://localhost/)
+- **phpMyAdmin:** [http://localhost:8080/](http://localhost:8080/) ( `compose.yaml` でポートが変更されている場合は調整してください)
 
 ## ログイン情報 (シーディング後)
 
--   **管理者ユーザー:**
-    -   メールアドレス: `admin@example.com`
-    -   パスワード: `adminpass`
--   **一般ユーザー:**
-    -   `UserSeeder` で作成されたユーザー情報をご確認ください (メールアドレス/パスワード: `password`)。
+- **管理者ユーザー:**
+  - メールアドレス: `admin@example.com`
+  - パスワード: `adminpass`
+
+- **一般ユーザー:**
+  - メールアドレス: `test@example.com`
+  - パスワード: `testpass`
+
+## テスト
+
+このプロジェクトでは、アプリケーションの品質を保証するために PHPUnit を使用したテストスイートが含まれています。
+
+### テストの実行方法
+
+1.  **Docker コンテナ内に入る:**
+
+    ```bash
+    docker-compose exec php bash
+    ```
+
+2.  **(PHP コンテナ内) テストを実行する:**
+
+    ```bash
+    php artisan test
+    ```
+
+    特定のテストファイルのみを実行したい場合は、ファイルパスを指定します。
+
+    ```bash
+    php artisan test tests/Feature/Auth/AuthenticationTest.php
+    ```
+
+    特定のメソッドのみを実行したい場合は、`--filter` オプションを使用します。
+
+    ```bash
+    php artisan test --filter=login_fails_when_email_is_missing
+    ```
+
+### テストの内容
+
+`tests/` ディレクトリには、以下の種類のテストが含まれています。
+
+- **Feature テスト (`tests/Feature`):** アプリケーションの主要な機能（認証、勤怠打刻、修正申請、管理者機能など）に関するエンドツーエンドに近いテスト。
+
+  - `Auth/`: ログイン、登録、管理者認証などの認証関連テスト。
+  - `Attendance/`: 一般ユーザー向けの勤怠打刻、休憩、一覧表示、詳細表示、修正申請に関するテスト。
+  - `Admin/`: 管理者向けのスタッフ一覧、勤怠一覧、勤怠詳細/更新、修正申請の承認/却下に関するテスト。
+  - `AttendancePageTest.php`: 勤怠打刻ページの表示内容テスト。
+
+- **Unit テスト (`tests/Unit`):** (現在は基本的なテストのみ) より細かい単位（モデルや特定のクラス）のテスト。必要に応じて拡充されます。
+
+テストは、アプリケーションの動作が期待通りであることを確認し、リファクタリングや機能追加時のデグレードを防ぐために重要です。新しい機能を追加したり、既存の機能を変更した際には、関連するテストを追加・修正することが推奨されます。
