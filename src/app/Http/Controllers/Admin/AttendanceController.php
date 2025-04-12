@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,15 +18,17 @@ class AttendanceController extends Controller
     public function list(Request $request)
     {
         $date = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
-        $users = User::where('role_id', 2)->get();
+
         $attendances = Attendance::whereDate('date', $date)
+            ->whereHas('user.role', function ($query) {
+                $query->where('name', 'user');
+            })
             ->with(['user', 'correctionRequests' => function ($query) {
                 $query->where('status', 'approved');
             }])
             ->get();
 
         return view('admin.attendance.list', [
-            'users' => $users,
             'attendances' => $attendances,
             'date' => $date
         ]);
@@ -78,13 +81,13 @@ class AttendanceController extends Controller
             $displayData['clock_in'] = Carbon::parse($latestApprovedRequest->clock_in);
             $displayData['clock_out'] = Carbon::parse($latestApprovedRequest->clock_out);
             $displayData['breaks'] = collect($latestApprovedRequest->break_start ?? [])->map(function ($start, $index) use ($latestApprovedRequest, $date) {
-                 $endTime = $latestApprovedRequest->break_end[$index] ?? null;
-                 return (object)[
+                $endTime = $latestApprovedRequest->break_end[$index] ?? null;
+                return (object)[
                     'start_time' => $start ? Carbon::parse($date . ' ' . $start) : null,
                     'end_time' => $endTime ? Carbon::parse($date . ' ' . $endTime) : null,
-                 ];
+                ];
              })->filter(function ($break) {
-                 return $break->start_time && $break->end_time;
+                return $break->start_time && $break->end_time;
              });
             $displayData['reason'] = $latestApprovedRequest->reason;
         } else {
@@ -245,7 +248,7 @@ class AttendanceController extends Controller
             $staffId = $attendance->user_id;
             $month = Carbon::parse($attendance->date)->format('Y-m');
             return redirect()->route('admin.staff.monthly_attendance', ['id' => $staffId, 'month' => $month])
-                             ->with('success', '勤怠情報を更新しました。');
+                            ->with('success', '勤怠情報を更新しました。');
 
         } catch (\Exception $e) {
             DB::rollBack();

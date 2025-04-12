@@ -28,13 +28,13 @@
             <tbody>
                 @foreach ($attendances as $attendance)
                 <tr>
-                    <td>{{ $attendance['date'] }}</td>
-                    <td>{{ $attendance['clock_in'] }}</td>
-                    <td>{{ $attendance['clock_out'] }}</td>
-                    <td>{{ $attendance['break_time'] }}</td>
-                    <td>{{ $attendance['total_time'] }}</td>
+                    <td>{{ $attendance['date'] ?? '-' }}</td>
+                    <td>{{ $attendance['clock_in'] ?? '-' }}</td>
+                    <td>{{ $attendance['clock_out'] ?? '-' }}</td>
+                    <td>{{ $attendance['total_break_time'] ?? $attendance['break_time'] ?? '0:00' }}</td>
+                    <td>{{ $attendance['total_work_time'] ?? $attendance['total_time'] ?? '0:00' }}</td>
                     <td>
-                        @if($attendance['id'])
+                        @if($attendance['id'] ?? null)
                         <x-button as="a" :href="route('attendance.show', ['id' => $attendance['id']])" variant="secondary" size="sm">詳細</x-button>
                         @else
                         -

@@ -72,9 +72,9 @@ class StaffController extends Controller
         return view('admin.staff.monthly_attendance', [
             'user' => $user,
             'attendances' => $attendances,
-            'month' => $month, // Pass the original month string (YYYY-MM)
-            'previousMonth' => $previousMonth, // Pass previous month string
-            'nextMonth' => $nextMonth, // Pass next month string
+            'month' => $month,
+            'previousMonth' => $previousMonth,
+            'nextMonth' => $nextMonth,
         ]);
     }
 }

@@ -26,37 +26,36 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($users as $user)
+                @forelse($attendances as $attendance)
                     @php
-                        $attendance = $attendances->where('user_id', $user->id)->first();
-                        // Format time for admin view (similar to user view)
                         $formatTime = function($timeString) {
-                            if (empty($timeString) || $timeString === '00:00') {
+                            if (empty($timeString) || $timeString === '00:00' || $timeString === '0:00') {
                                 return '0:00';
                             }
-                            if (str_starts_with($timeString, '0')) {
+                            if ($timeString === '0:00') return '0:00';
+                            if (str_starts_with($timeString, '0') && strlen($timeString) > 4) {
                                 return substr($timeString, 1);
                             }
                             return $timeString;
                         };
-                        $breakTime = $attendance ? $formatTime($attendance->total_break_time ?: '00:00') : '0:00';
-                        $workTime = $attendance ? $formatTime($attendance->total_work_time ?: '00:00') : '0:00';
+                        $breakTime = $attendance->total_break_time ? $formatTime($attendance->total_break_time) : '0:00';
+                        $workTime = $attendance->total_work_time ? $formatTime($attendance->total_work_time) : '0:00';
                     @endphp
                     <tr>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $attendance?->clock_in?->format('H:i') ?? '-' }}</td>
-                        <td>{{ $attendance?->clock_out?->format('H:i') ?? '-' }}</td>
+                        <td>{{ $attendance->user?->name ?? 'ユーザー情報なし' }}</td>
+                        <td>{{ $attendance->clock_in?->format('H:i') ?? '-' }}</td>
+                        <td>{{ $attendance->clock_out?->format('H:i') ?? '-' }}</td>
                         <td>{{ $breakTime }}</td>
                         <td>{{ $workTime }}</td>
                         <td>
-                            @if($attendance)
                             <x-button as="a" :href="route('attendance.show', ['id' => $attendance->id])" variant="secondary" size="sm" class="p-admin-attendance-list__detail-button">詳細</x-button>
-                            @else
-                            -
-                            @endif
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center;">表示する勤怠データがありません。</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -55,14 +55,14 @@ class AttendanceRequest extends FormRequest
                             if (!$validator->errors()->has("break_start.{$index}") && !$validator->errors()->has("break_end.{$index}")) {
                                 $breakStart = $date->copy()->setTimeFromTimeString($breakStartInput);
                                 $breakEnd = $date->copy()->setTimeFromTimeString($breakEndInput);
-    
+
                                 if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
                                     $validator->errors()->add(
                                         "break_start.{$index}",
                                         '休憩時間が勤務時間外です。'
                                     );
                                 }
-    
+
                                 if ($breakStart->gt($breakEnd)) {
                                     $validator->errors()->add(
                                         "break_start.{$index}",

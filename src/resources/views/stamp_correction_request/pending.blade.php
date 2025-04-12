@@ -23,7 +23,7 @@
     <div class="p-admin-request-approve__comparison-container c-card">
         <h3 class="p-admin-request-approve__comparison-title">修正内容比較</h3>
         <table class="c-table c-table--comparison">
-             <thead>
+            <thead>
                 <tr>
                     <th>項目</th>
                     <th>修正前</th>
@@ -45,7 +45,7 @@
                 @php
                     $maxBreaks = max(count($request->original_break_start ?? []), count($request->break_start ?? []));
                 @endphp
-                 @for ($i = 0; $i < $maxBreaks; $i++)
+                @for ($i = 0; $i < $maxBreaks; $i++)
                 <tr>
                     <th>休憩{{ $i + 1 }}</th>
                     <td>
@@ -57,7 +57,7 @@
                     </td>
                     <td>
                         @if(isset($request->break_start[$i]) && isset($request->break_end[$i]))
-                             {{ \Carbon\Carbon::parse($request->break_start[$i])->format('H:i') }} 〜 {{ \Carbon\Carbon::parse($request->break_end[$i])->format('H:i') }}
+                            {{ \Carbon\Carbon::parse($request->break_start[$i])->format('H:i') }} 〜 {{ \Carbon\Carbon::parse($request->break_end[$i])->format('H:i') }}
                         @else
                             -
                         @endif
@@ -73,7 +73,7 @@
                 @endif
                 <tr>
                     <th>備考</th>
-                     <td>{{ $request->original_reason ?? '-' }}</td>
+                    <td>{{ $request->original_reason ?? '-' }}</td>
                     <td>{{ $request->reason ?? '-' }}</td>
                 </tr>
             </tbody>

@@ -20,7 +20,7 @@
                     @if($request->approved_at)
                         {{ \Carbon\Carbon::parse($request->approved_at)->format('Y/m/d H:i') }}
                     @elseif($request->rejected_at)
-                         {{ \Carbon\Carbon::parse($request->rejected_at)->format('Y/m/d H:i') }}
+                        {{ \Carbon\Carbon::parse($request->rejected_at)->format('Y/m/d H:i') }}
                     @else
                         -
                     @endif
@@ -73,7 +73,7 @@
                 @php
                     $maxBreaks = max(count($request->original_break_start ?? []), count($request->break_start ?? []));
                 @endphp
-                 @for ($i = 0; $i < $maxBreaks; $i++)
+                @for ($i = 0; $i < $maxBreaks; $i++)
                 <tr>
                     <th>休憩{{ $i + 1 }}</th>
                     <td>
@@ -85,7 +85,7 @@
                     </td>
                     <td>
                         @if(isset($request->break_start[$i]) && isset($request->break_end[$i]))
-                             {{ \Carbon\Carbon::parse($request->break_start[$i])->format('H:i') }} 〜 {{ \Carbon\Carbon::parse($request->break_end[$i])->format('H:i') }}
+                            {{ \Carbon\Carbon::parse($request->break_start[$i])->format('H:i') }} 〜 {{ \Carbon\Carbon::parse($request->break_end[$i])->format('H:i') }}
                         @else
                             -
                         @endif

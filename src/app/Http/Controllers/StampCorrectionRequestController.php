@@ -285,7 +285,7 @@ class StampCorrectionRequestController extends Controller
         }
 
         if ($request->status !== 'approved') {
-             abort(404, '承認済みの申請ではありません。');
+            abort(404, '承認済みの申請ではありません。');
         }
 
         $data = [

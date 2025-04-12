@@ -12,15 +12,15 @@
 
     <div class="p-request-list__tabs">
         <a href="{{ route('stamp_correction_request.list', ['status' => 'pending']) }}"
-           class="p-request-list__tab {{ $status === 'pending' ? 'p-request-list__tab--active' : '' }}">
+        class="p-request-list__tab {{ $status === 'pending' ? 'p-request-list__tab--active' : '' }}">
             承認待ち
         </a>
         <a href="{{ route('stamp_correction_request.list', ['status' => 'approved']) }}"
-           class="p-request-list__tab {{ $status === 'approved' ? 'p-request-list__tab--active' : '' }}">
+        class="p-request-list__tab {{ $status === 'approved' ? 'p-request-list__tab--active' : '' }}">
             承認済み
         </a>
         <a href="{{ route('stamp_correction_request.list', ['status' => 'rejected']) }}"
-           class="p-request-list__tab {{ $status === 'rejected' ? 'p-request-list__tab--active' : '' }}">
+        class="p-request-list__tab {{ $status === 'rejected' ? 'p-request-list__tab--active' : '' }}">
             却下
         </a>
     </div>

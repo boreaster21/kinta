@@ -42,8 +42,12 @@ class StampCorrectionRequestController extends Controller
             $attendance->date = Carbon::parse($request->date)->format('Y-m-d');
             $newDateStr = $attendance->date;
 
-            $attendance->clock_in = Carbon::parse($newDateStr . ' ' . $request->clock_in)->format('Y-m-d H:i:s');
-            $attendance->clock_out = Carbon::parse($newDateStr . ' ' . $request->clock_out)->format('Y-m-d H:i:s');
+            $clockInTimeStr = $request->clock_in->format('H:i');
+            $clockOutTimeStr = $request->clock_out->format('H:i');
+
+            $newDate = Carbon::parse($newDateStr)->startOfDay();
+            $attendance->clock_in = $newDate->copy()->setTimeFromTimeString($clockInTimeStr);
+            $attendance->clock_out = $newDate->copy()->setTimeFromTimeString($clockOutTimeStr);
 
             if (!empty($request->reason)) {
                 $attendance->reason = $request->reason;
@@ -51,38 +55,35 @@ class StampCorrectionRequestController extends Controller
 
             $attendance->save();
 
-            Log::info('Updated attendance base info', [
-                'attendance_id' => $attendance->id,
-                'date' => $attendance->date,
-                'clock_in' => $attendance->clock_in,
-                'clock_out' => $attendance->clock_out,
-                'reason' => $attendance->reason
-            ]);
+            Log::info('Updated attendance base info', ['attendance_id' => $attendance->id, 'clock_in' => $attendance->clock_in, 'clock_out' => $attendance->clock_out, 'reason' => $attendance->reason]);
 
             $attendance->breaks()->delete();
 
-            $breakStarts = $request->break_start;
-            $breakEnds = $request->break_end;
+            $breakStarts = $request->break_start ?? [];
+            $breakEnds = $request->break_end ?? [];
 
             foreach ($breakStarts as $index => $start) {
                 if (!isset($breakEnds[$index]) || empty($start) || empty($breakEnds[$index])) {
                     continue;
                 }
 
-                $breakStart = Carbon::parse($newDateStr . ' ' . $start)->format('Y-m-d H:i:s');
-                $breakEnd = Carbon::parse($newDateStr . ' ' . $breakEnds[$index])->format('Y-m-d H:i:s');
+                $breakStartTimeStr = Carbon::parse($start)->format('H:i');
+                $breakEndTimeStr = Carbon::parse($breakEnds[$index])->format('H:i');
+
+                $breakStartDateTime = $newDate->copy()->setTimeFromTimeString($breakStartTimeStr);
+                $breakEndDateTime = $newDate->copy()->setTimeFromTimeString($breakEndTimeStr);
 
                 $break = $attendance->breaks()->create([
-                    'start_time' => $breakStart,
-                    'end_time' => $breakEnd,
-                    'duration' => Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart))
+                    'start_time' => $breakStartDateTime,
+                    'end_time' => $breakEndDateTime,
+                    'duration' => $breakEndDateTime->diffInMinutes($breakStartDateTime)
                 ]);
 
                 Log::info('Created break time after approval', [
                     'attendance_id' => $attendance->id,
                     'break_index' => $index,
-                    'break_start' => $breakStart,
-                    'break_end' => $breakEnd,
+                    'break_start' => $breakStartDateTime->format('Y-m-d H:i:s'),
+                    'break_end' => $breakEndDateTime->format('Y-m-d H:i:s'),
                     'duration' => $break->duration
                 ]);
             }
@@ -94,20 +95,17 @@ class StampCorrectionRequestController extends Controller
             $totalBreakTime = $attendance->total_break_time;
             $totalWorkTime = $attendance->total_work_time;
 
-            Log::info('Final attendance state after approval', [
-                'attendance_id' => $attendance->id,
-                'clock_in' => $attendance->clock_in,
-                'clock_out' => $attendance->clock_out,
-                'reason' => $attendance->reason,
-                'total_break_time' => $totalBreakTime,
-                'total_work_time' => $totalWorkTime,
-                'breaks_count' => $attendance->breaks()->count()
-            ]);
+            Log::info('Final attendance state after approval', ['attendance_id' => $attendance->id, 'clock_in' => $attendance->clock_in, 'clock_out' => $attendance->clock_out, 'reason' => $attendance->reason, 'total_break_time' => $totalBreakTime, 'total_work_time' => $totalWorkTime, 'breaks_count' => $attendance->breaks()->count()]);
 
             $request->status = 'approved';
             $request->approved_by = Auth::id();
             $request->approved_at = now();
             $request->save();
+
+            Log::info('StampCorrectionRequest status after save', [
+                'request_id' => $request->id,
+                'status' => $request->status
+            ]);
 
             DB::commit();
 
@@ -141,7 +139,15 @@ class StampCorrectionRequestController extends Controller
 
     public function showApproveForm($id)
     {
-        $request = StampCorrectionRequest::with(['user', 'attendance'])->findOrFail($id);
+        $request = StampCorrectionRequest::with(['user', 'attendance.breaks'])->findOrFail($id);
+
+        $attendance = $request->attendance;
+        $request->original_clock_in_display = $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-';
+        $request->original_clock_out_display = $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-';
+        $request->original_breaks_display = $attendance->breaks->map(function ($break) {
+            return ($break->start_time ? Carbon::parse($break->start_time)->format('H:i') : '-') . ' 〜 ' . ($break->end_time ? Carbon::parse($break->end_time)->format('H:i') : '-');
+        })->toArray();
+        $request->original_reason_display = $attendance->reason ?? '-';
 
         return view('admin.stamp_correction_request.approve', [
             'request' => $request

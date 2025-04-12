@@ -66,6 +66,42 @@ class DatabaseSeeder extends Seeder
                 $currentDate->addDay();
             }
         }
+
+        // --- Add Today's Data Explicitly --- 
+        $today = Carbon::today();
+        foreach ($users as $user) {
+            // Skip if today's data already exists for the user
+            if (!Attendance::where('user_id', $user->id)->whereDate('date', $today)->exists()) {
+                 Log::info('Generating explicit data for today for user: ' . $user->email);
+                 $clockInToday = $today->copy()->setHour(9)->addMinutes(rand(-15, 15));
+                 $clockOutToday = $today->copy()->setHour(17)->addMinutes(rand(-15, 15));
+                 
+                 $attendanceToday = Attendance::create([
+                     'user_id' => $user->id,
+                     'date' => $today->toDateString(),
+                     'clock_in' => $clockInToday,
+                     'clock_out' => $clockOutToday,
+                     'total_break_time' => '00:00', // Initialize
+                     'total_work_time' => '00:00',  // Initialize
+                 ]);
+
+                 // Add a break for today's attendance
+                 BreakTime::create([
+                     'attendance_id' => $attendanceToday->id,
+                     'start_time' => $today->copy()->setHour(12)->setMinute(0),
+                     'end_time' => $today->copy()->setHour(13)->setMinute(0),
+                     'duration' => 60,
+                 ]);
+
+                 // Recalculate times
+                 $attendanceToday = $attendanceToday->fresh(); // Refresh to get breaks
+                 $attendanceToday->calculateTotalBreakTime();
+                 $attendanceToday->calculateTotalWorkTime();
+                 $attendanceToday->save();
+            }
+        }
+        // --- End of Added Section ---
+
         Log::info('Dummy data generation finished.');
     }
 

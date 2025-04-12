@@ -65,34 +65,33 @@
             <tbody>
                 <tr>
                     <th>出勤</th>
-                    <td>{{ $request->original_clock_in ? \Carbon\Carbon::parse($request->original_clock_in)->format('H:i') : '-' }}</td>
+                    <td>{{ $request->original_clock_in_display }}</td>
                     <td>{{ \Carbon\Carbon::parse($request->clock_in)->format('H:i') }}</td>
                 </tr>
                 <tr>
                     <th>退勤</th>
-                    <td>{{ $request->original_clock_out ? \Carbon\Carbon::parse($request->original_clock_out)->format('H:i') : '-' }}</td>
+                    <td>{{ $request->original_clock_out_display }}</td>
                     <td>{{ \Carbon\Carbon::parse($request->clock_out)->format('H:i') }}</td>
                 </tr>
                 {{-- Combine Breaks --}}
                 @php
-                    $maxBreaks = max(count($request->original_break_start ?? []), count($request->break_start ?? []));
+                    $requestedBreaks = collect($request->break_start ?? [])->map(function ($start, $index) use ($request) {
+                        $endTime = $request->break_end[$index] ?? null;
+                        if ($start && $endTime) {
+                            return \Carbon\Carbon::parse($start)->format('H:i') . ' 〜 ' . \Carbon\Carbon::parse($endTime)->format('H:i');
+                        }
+                        return '-';
+                    })->toArray();
+                    $maxBreaks = max(count($request->original_breaks_display ?? []), count($requestedBreaks));
                 @endphp
                 @for ($i = 0; $i < $maxBreaks; $i++)
                 <tr>
                     <th>休憩{{ $i + 1 }}</th>
                     <td>
-                        @if(isset($request->original_break_start[$i]) && isset($request->original_break_end[$i]))
-                            {{ $request->original_break_start[$i] }} 〜 {{ $request->original_break_end[$i] }}
-                        @else
-                            -
-                        @endif
+                        {{ $request->original_breaks_display[$i] ?? '-' }}
                     </td>
                     <td>
-                        @if(isset($request->break_start[$i]) && isset($request->break_end[$i]))
-                             {{ \Carbon\Carbon::parse($request->break_start[$i])->format('H:i') }} 〜 {{ \Carbon\Carbon::parse($request->break_end[$i])->format('H:i') }}
-                        @else
-                            -
-                        @endif
+                        {{ $requestedBreaks[$i] ?? '-' }}
                     </td>
                 </tr>
                 @endfor
@@ -105,7 +104,7 @@
                 @endif
                 <tr>
                     <th>備考</th>
-                    <td>{{ $request->original_reason ?? '-' }}</td>
+                    <td>{{ $request->original_reason_display }}</td>
                     <td>{{ $request->reason ?? '-' }}</td>
                 </tr>
             </tbody>
@@ -127,4 +126,4 @@
     </div>
 </div>
 
-@endsection 
+@endsection
