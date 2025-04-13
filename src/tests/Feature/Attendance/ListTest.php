@@ -46,7 +46,7 @@ class ListTest extends TestCase
         return $date->format('m/d') . ' (' . $dayOfWeekJp . ')';
     }
 
-        #[Test]
+    #[Test]
     public function user_can_only_see_their_own_attendance_data(): void
     {
         $currentMonth = Carbon::today();
@@ -63,7 +63,7 @@ class ListTest extends TestCase
             'clock_out' => $previousMonth->copy()->startOfMonth()->addDays(10)->setHour(17),
         ]);
 
-        $otherUserClockInTime = $currentMonth->copy()->startOfMonth()->addDays(7)->setHour(10)->setMinute(3); // Other user's time: 10:03
+        $otherUserClockInTime = $currentMonth->copy()->startOfMonth()->addDays(7)->setHour(10)->setMinute(3);
         $otherUserAttendance = Attendance::factory()->for($this->otherUser)->create([
             'date' => $currentMonth->copy()->startOfMonth()->addDays(7),
             'clock_in' => $otherUserClockInTime,
@@ -75,11 +75,11 @@ class ListTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($this->formatDateForView(Carbon::parse($userAttendanceCurrent->date)));
-        $response->assertSee($this->formatTimeForView($userAttendanceCurrent->clock_in)); // Should see 09:00
+        $response->assertSee($this->formatTimeForView($userAttendanceCurrent->clock_in));
         $response->assertSee($this->formatTimeForView($userAttendanceCurrent->clock_out));
 
         $response->assertDontSee($this->formatDateForView(Carbon::parse($otherUserAttendance->date)));
-        $response->assertDontSeeText($this->formatTimeForView($otherUserClockInTime)); // Check for absence of 10:03
+        $response->assertDontSeeText($this->formatTimeForView($otherUserClockInTime));
 
         $response->assertDontSee($this->formatDateForView(Carbon::parse($userAttendancePrevious->date)));
     }
@@ -89,7 +89,7 @@ class ListTest extends TestCase
     {
         $now = Carbon::now();
         $currentMonthString = $now->format('Y-m');
-        $currentMonthDisplay = $now->format('Y/m'); // Corrected format
+        $currentMonthDisplay = $now->format('Y/m');
 
         $this->actingAs($this->user);
         $response = $this->get(route('attendance.list'));
@@ -105,7 +105,7 @@ class ListTest extends TestCase
         $currentMonth = Carbon::today();
         $previousMonth = $currentMonth->copy()->subMonth();
         $previousMonthString = $previousMonth->format('Y-m');
-        $previousMonthDisplay = $previousMonth->format('Y/m'); // Corrected format
+        $previousMonthDisplay = $previousMonth->format('Y/m');
 
         $prevMonthAttendance = Attendance::factory()->for($this->user)->create([
             'date' => $previousMonth->copy()->startOfMonth()->addDay(),
@@ -135,7 +135,7 @@ class ListTest extends TestCase
         $currentMonth = Carbon::today();
         $nextMonth = $currentMonth->copy()->addMonth();
         $nextMonthString = $nextMonth->format('Y-m');
-        $nextMonthDisplay = $nextMonth->format('Y/m'); // Corrected format
+        $nextMonthDisplay = $nextMonth->format('Y/m');
 
         $currMonthAttendance = Attendance::factory()->for($this->user)->create([
             'date' => $currentMonth->copy()->startOfMonth()->addDay(),

@@ -8,7 +8,6 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -113,10 +112,6 @@ class StampCorrectionRequestController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('勤怠修正申請の承認に失敗しました', [
-                'request_id' => $request->id,
-                'error' => $e->getMessage()
-            ]);
 
             return back()->with('error', '申請の承認に失敗しました。');
         }
@@ -245,10 +240,6 @@ class StampCorrectionRequestController extends Controller
         ]);
     }
 
-    /**
-     * @param int $id 修正申請ID
-     * @return \Illuminate\View\View
-     */
     public function show($id)
     {
         $request = StampCorrectionRequest::findOrFail($id);

@@ -10,12 +10,10 @@ use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 
 class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
-
     public function update(User $user, array $input): void
     {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
-
             'email' => [
                 'required',
                 'string',
@@ -36,11 +34,6 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         }
     }
 
-    /**
-     * Update the given verified user's profile information.
-     *
-     * @param  array<string, string>  $input
-     */
     protected function updateVerifiedUser(User $user, array $input): void
     {
         $user->forceFill([

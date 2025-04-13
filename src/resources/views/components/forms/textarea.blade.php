@@ -16,4 +16,4 @@ $value = old($name, $value);
     {{ $disabled ? 'disabled' : '' }}
     {{ $required ? 'required' : '' }}
     {{ $attributes->merge(['class' => 'c-textarea ' . $errorClass]) }}
->{{ $value }}</textarea> 
+>{{ $value }}</textarea>

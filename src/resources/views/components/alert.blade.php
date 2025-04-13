@@ -18,4 +18,4 @@ $typeClass = $typeClasses[$type] ?? $typeClasses['info'];
 <div {{ $attributes->merge(['class' => $baseClass . ' ' . $typeClass]) }}>
     {{ $message ?? $slot }}
 </div>
-@endif 
+@endif

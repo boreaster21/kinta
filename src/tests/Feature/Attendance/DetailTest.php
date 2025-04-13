@@ -43,7 +43,7 @@ class DetailTest extends TestCase
             'start_time' => $attendanceDate->copy()->setHour(12)->setMinute(1),
             'end_time' => $attendanceDate->copy()->setHour(13)->setMinute(2),
         ]);
-         BreakTime::factory()->for($this->attendance)->create([
+        BreakTime::factory()->for($this->attendance)->create([
             'start_time' => $attendanceDate->copy()->setHour(15)->setMinute(0),
             'end_time' => $attendanceDate->copy()->setHour(15)->setMinute(15),
         ]);
@@ -54,7 +54,7 @@ class DetailTest extends TestCase
             'clock_out' => null,
         ]);
 
-         $this->attendanceNoBreaks = Attendance::factory()->for($this->user)->create([
+        $this->attendanceNoBreaks = Attendance::factory()->for($this->user)->create([
             'date' => $attendanceDate->copy()->addDays(2),
             'clock_in' => $attendanceDate->copy()->addDays(2)->setHour(8)->setMinute(55),
             'clock_out' => $attendanceDate->copy()->addDays(2)->setHour(17)->setMinute(30),
@@ -88,7 +88,6 @@ class DetailTest extends TestCase
         $response->assertViewHas('attendance.date', function(Carbon $viewDate) use ($expectedDate) {
             return $viewDate->isSameDay($expectedDate);
         });
-        // Check if the input field exists, without relying on value attribute format
         $response->assertSee('name="date"', false);
     }
 
@@ -105,26 +104,24 @@ class DetailTest extends TestCase
         $response->assertViewHas('displayData.clock_in', function(?Carbon $viewClockIn) use ($expectedClockIn) {
             return $viewClockIn && $viewClockIn->equalTo($expectedClockIn);
         });
-         $response->assertViewHas('displayData.clock_out', function(?Carbon $viewClockOut) use ($expectedClockOut) {
+        $response->assertViewHas('displayData.clock_out', function(?Carbon $viewClockOut) use ($expectedClockOut) {
             return $viewClockOut && $viewClockOut->equalTo($expectedClockOut);
         });
-        // Check if input fields exist
         $response->assertSee('name="clock_in"', false);
         $response->assertSee('name="clock_out"', false);
 
-        // Test case with no clock out
         $responseNoClockOut = $this->get(route('attendance.show', $this->attendanceNoClockOut->id));
         $responseNoClockOut->assertOk();
         $expectedClockInNoClockOut = $this->attendanceNoClockOut->clock_in;
         $responseNoClockOut->assertViewHas('displayData.clock_in', function(?Carbon $viewClockIn) use ($expectedClockInNoClockOut) {
-             return $viewClockIn && $viewClockIn->equalTo($expectedClockInNoClockOut);
+            return $viewClockIn && $viewClockIn->equalTo($expectedClockInNoClockOut);
         });
         $responseNoClockOut->assertViewHas('displayData.clock_out', null);
         $responseNoClockOut->assertSee('name="clock_in"', false);
         $responseNoClockOut->assertSee('name="clock_out"', false);
     }
 
-        #[Test]
+    #[Test]
     public function displays_correct_break_times(): void
     {
         $this->actingAs($this->user);
@@ -147,22 +144,18 @@ class DetailTest extends TestCase
             return true;
         });
 
-        // Check if existing break input fields exist by their name and id separately
         $response->assertSee('name="break_start[]"', false);
         $response->assertSee('id="break_start_0"', false);
         $response->assertSee('name="break_end[]"', false);
         $response->assertSee('id="break_end_0"', false);
-        $response->assertSee('id="break_start_1"', false); // Check second break fields too
+        $response->assertSee('id="break_start_1"', false);
         $response->assertSee('id="break_end_1"', false);
 
-
-        // Test case with no breaks
         $responseNoBreaks = $this->get(route('attendance.show', $this->attendanceNoBreaks->id));
         $responseNoBreaks->assertOk();
         $responseNoBreaks->assertViewHas('displayData.breaks', function($viewBreaks) {
             return $viewBreaks->isEmpty();
         });
-        // Changed: Check for the presence of name and id attributes separately for the default empty inputs
         $responseNoBreaks->assertSee('name="break_start[]"', false);
         $responseNoBreaks->assertSee('id="break_start_0"', false);
         $responseNoBreaks->assertSee('name="break_end[]"', false);

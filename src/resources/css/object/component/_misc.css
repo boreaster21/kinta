@@ -30,7 +30,6 @@
     object-fit: contain;
 }
 
-/* --- Pagination Styles --- */
 .pagination {
     display: flex;
     justify-content: center;
@@ -80,8 +79,7 @@
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Adjust SVG size within pagination links */
 .page-link svg {
-    width: 1em; /* Or set a fixed size like 16px */
+    width: 1em;
     height: 1em;
 }

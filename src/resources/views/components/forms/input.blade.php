@@ -13,12 +13,12 @@ $value = old(str_replace(['[', ']'], ['.', ''], $name), $value);
 $inputId = $id ?? $name;
 @endphp
 
-<input 
-    type="{{ $type }}" 
-    name="{{ $name }}" 
+<input
+    type="{{ $type }}"
+    name="{{ $name }}"
     id="{{ $inputId }}"
     value="{{ $value }}"
     {{ $disabled ? 'disabled' : '' }}
     {{ $required ? 'required' : '' }}
     {{ $attributes->merge(['class' => 'c-input ' . $errorClass]) }}
-> 
+>

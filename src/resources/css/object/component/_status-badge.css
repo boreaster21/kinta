@@ -1,4 +1,3 @@
-/* Status Badge Component */
 .c-status-badge {
     display: inline-block;
     padding: 4px 8px;
@@ -22,15 +21,3 @@
     background-color: #f8d7da;
     color: #721c24;
 }
-
-/* Add other statuses if needed */
-/*
-.c-status-badge--info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-.c-status-badge--warning {
-    background-color: #fff3cd;
-    color: #856404;
-}
-*/ 

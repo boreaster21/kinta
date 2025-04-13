@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('.attendance-form');
-    
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
             const button = this.querySelector('button');
             const action = button.textContent.trim();
-            
             let message = '';
             switch (action) {
                 case '退勤':
@@ -21,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     message = '休憩を終了しますか？';
                     break;
             }
-            
             if (!confirm(message)) {
                 e.preventDefault();
             }

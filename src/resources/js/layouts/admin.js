@@ -11,12 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.admin-sidebar');
     
-    // サイドバートグルボタンが存在する場合のみイベントリスナーを追加
     if (sidebarToggle && sidebar) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('show');
             
-            // コンテンツエリアの調整
             const content = document.querySelector('.admin-content');
             if (content) {
                 if (sidebar.classList.contains('show')) {
@@ -28,12 +26,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // サイドバーが存在しない場合は何もしない
     if (!sidebar) {
         return;
     }
     
-    // ウィンドウサイズが変更された場合、レスポンシブ対応
     window.addEventListener('resize', function() {
         if (window.innerWidth > 992 && sidebar) {
             sidebar.classList.remove('show');
@@ -45,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // スマートフォンでサイドバーリンククリック時にサイドバーを閉じる
     const sidebarLinks = document.querySelectorAll('.admin-sidebar-link');
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function() {

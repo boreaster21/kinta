@@ -1,9 +1,7 @@
 @import 'foundation/_base.css';
 
-/* @import 'layout/admin.css'; */
 @import 'layout/app.css';
 
-/* --- Components --- */
 @import 'object/component/_button.css';
 @import 'object/component/_card.css';
 @import 'object/component/_table.css';
@@ -13,12 +11,5 @@
 @import 'object/component/_misc.css';
 @import 'object/component/_status-badge.css';
 
-/* --- Projects --- */
 @import 'object/project/_attendance.css';
 @import 'object/project/_auth.css';
-@import 'object/project/_stamp-correction-request.css';
-/* @import 'object/project/admin/_attendance.css'; Removed as styles are merged */
-/* @import 'object/project/admin/_stamp-correction-request.css'; Removed as styles are merged */
-
-/* --- Utilities --- */
-/* @import 'object/utility/...'; */ 

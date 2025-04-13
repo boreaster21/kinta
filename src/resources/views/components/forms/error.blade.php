@@ -6,4 +6,4 @@
     <div {{ $attributes->merge(['class' => 'c-error-message']) }}>
         {{ $message }}
     </div>
-@enderror 
+@enderror

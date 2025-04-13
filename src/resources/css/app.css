@@ -1,9 +1,7 @@
 @import 'foundation/_base.css';
 
 @import 'layout/app.css';
-/* @import 'layout/admin.css'; */ /* 管理画面では別途読み込む想定 */
 
-/* --- Components --- */
 @import 'object/component/_button.css';
 @import 'object/component/_card.css';
 @import 'object/component/_table.css';
@@ -13,10 +11,6 @@
 @import 'object/component/_misc.css'; /* page-title, c-status-label など */
 @import 'object/component/_status-badge.css';
 
-/* --- Projects --- */
 @import 'object/project/_attendance.css';
 @import 'object/project/_auth.css';
 @import 'object/project/_stamp-correction-request.css';
-/* 他のプロジェクトCSSがあれば追加 */
-
-/* @import 'object/utility/...'; */ /* Utility を使う場合は追加 */

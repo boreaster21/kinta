@@ -39,4 +39,4 @@ $finalAttributes = $attributes->merge([
     <button type="{{ $type }}" {{ $disabled ? 'disabled' : '' }} {{ $finalAttributes }}>
         {{ $slot }}
     </button>
-@endif 
+@endif

@@ -47,10 +47,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function (Request $request) {
             $loginRequest = new LoginRequest();
             $loginRequest->merge($request->all());
-            
-            // バリデーションを実行
             $validator = validator($request->all(), $loginRequest->rules(), $loginRequest->messages());
-            
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }

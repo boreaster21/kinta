@@ -162,7 +162,7 @@ class CorrectionRequestTest extends TestCase
         $response->assertSee(route('stamp_correction_request.pending', $request->id));
     }
 
-        #[Test]
+    #[Test]
     public function user_can_see_their_approved_requests_on_approved_tab(): void
     {
         $this->actingAs($this->user);
@@ -184,7 +184,7 @@ class CorrectionRequestTest extends TestCase
         $response->assertOk();
         $response->assertViewHas('requests', function ($viewRequests) use ($requestRecord) {
             $collectionToCheck = null;
-            if ($viewRequests instanceof \Illuminate\Contracts\Pagination\Paginator) { 
+            if ($viewRequests instanceof \Illuminate\Contracts\Pagination\Paginator) {
                 $collectionToCheck = $viewRequests->getCollection();
             } elseif ($viewRequests instanceof \Illuminate\Support\Collection) {
                 $collectionToCheck = $viewRequests;

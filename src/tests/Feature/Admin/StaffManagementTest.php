@@ -45,14 +45,11 @@ class StaffManagementTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        // Create attendance data for different months
         $today = Carbon::today();
         $prevMonth = $today->copy()->subMonth();
         $nextMonth = $today->copy()->addMonth();
 
-        // User 1 - Previous Month
         Attendance::factory()->for($this->user1)->create(['date' => $prevMonth->copy()->setDay(10)]);
-        // User 1 - This Month (and target for detail test)
         $this->targetAttendanceUser1 = Attendance::factory()->for($this->user1)->create([
             'date' => $today->copy()->setDay(5),
             'clock_in' => $today->copy()->setDay(5)->setHour(9)->setMinute(15),
@@ -66,10 +63,8 @@ class StaffManagementTest extends TestCase
         $this->targetAttendanceUser1->calculateTotalBreakTime();
         $this->targetAttendanceUser1->calculateTotalWorkTime();
         $this->targetAttendanceUser1->save();
-        // User 1 - Next Month
         Attendance::factory()->for($this->user1)->create(['date' => $nextMonth->copy()->setDay(20)]);
 
-        // User 2 - This Month
         Attendance::factory()->for($this->user2)->create(['date' => $today->copy()->setDay(8)]);
 
     }
@@ -84,9 +79,6 @@ class StaffManagementTest extends TestCase
         return $date->format('m/d') . ' (' . $this->daysOfWeek[$date->dayOfWeek] . ')';
     }
 
-    /**
-     * 21. 全一般ユーザー情報確認テスト
-     */
     #[Test]
     public function admin_can_view_all_staff_info(): void
     {
@@ -103,9 +95,6 @@ class StaffManagementTest extends TestCase
         $response->assertDontSee($this->adminUser->email);
     }
 
-    /**
-     * 22. 特定ユーザーの勤怠情報確認テスト
-     */
     #[Test]
     public function admin_can_view_specific_staff_monthly_attendance(): void
     {
@@ -116,14 +105,13 @@ class StaffManagementTest extends TestCase
         $response->assertViewIs('admin.staff.monthly_attendance');
         $response->assertViewHas('user', $this->user1);
         $response->assertViewHas('attendances', function ($viewAttendances) {
-            // Ensure it's iterable and contains the target ID
-             if (!is_iterable($viewAttendances)) return false;
-             foreach ($viewAttendances as $att) {
-                 if (($att['id'] ?? null) === $this->targetAttendanceUser1->id) {
-                     return true;
-                 }
-             }
-             return false;
+            if (!is_iterable($viewAttendances)) return false;
+            foreach ($viewAttendances as $att) {
+                if (($att['id'] ?? null) === $this->targetAttendanceUser1->id) {
+                    return true;
+                }
+            }
+            return false;
         });
         $response->assertSee($this->user1->name);
         $expectedDateString = $this->formatDisplayDate(Carbon::parse($this->targetAttendanceUser1->date));
@@ -132,9 +120,6 @@ class StaffManagementTest extends TestCase
         $response->assertSee($this->formatTime($this->targetAttendanceUser1->clock_out));
     }
 
-    /**
-     * 23. 勤怠一覧画面「前月」ボタン動作テスト
-     */
     #[Test]
     public function admin_can_navigate_to_previous_month_attendance(): void
     {
@@ -158,9 +143,6 @@ class StaffManagementTest extends TestCase
         $response->assertDontSee($expectedDontSeeDateString);
     }
 
-    /**
-     * 24. 勤怠一覧画面「翌月」ボタン動作テスト
-     */
     #[Test]
     public function admin_can_navigate_to_next_month_attendance(): void
     {
@@ -184,36 +166,30 @@ class StaffManagementTest extends TestCase
         $response->assertDontSee($expectedDontSeeDateString);
     }
 
-    /**
-     * 25. 勤怠一覧画面「詳細」ボタン遷移テスト
-     */
+
     #[Test]
     public function admin_can_navigate_to_daily_detail_from_staff_attendance(): void
     {
         $this->actingAs($this->adminUser);
         $targetMonthString = Carbon::parse($this->targetAttendanceUser1->date)->format('Y-m');
 
-        // First, go to the monthly attendance page
         $responseMonthly = $this->get(route('admin.staff.monthly_attendance', ['id' => $this->user1->id, 'month' => $targetMonthString]));
         $responseMonthly->assertOk();
 
-        // Find the detail link (assuming standard route name 'attendance.show')
         $detailUrl = route('attendance.show', $this->targetAttendanceUser1->id);
         $responseMonthly->assertSee($detailUrl);
 
-        // Then, navigate to the detail page
         $responseDetail = $this->get($detailUrl);
         $responseDetail->assertOk();
         $responseDetail->assertViewIs('attendance.detail');
         $responseDetail->assertViewHas('attendance', function ($viewAttendance) {
             return $viewAttendance->id === $this->targetAttendanceUser1->id;
         });
-        $responseDetail->assertViewHas('isAdmin', true); // Ensure admin context is passed
+        $responseDetail->assertViewHas('isAdmin', true);
 
-        // Check detail content
         $responseDetail->assertSee($this->user1->name);
         $responseDetail->assertSee($this->targetAttendanceUser1->date->format('Y-m-d'));
         $responseDetail->assertSee('value="' . $this->targetAttendanceUser1->clock_in->format('H:i') . '"', false);
         $responseDetail->assertSee('value="' . $this->targetAttendanceUser1->clock_out->format('H:i') . '"', false);
     }
-} 
+}

@@ -110,13 +110,6 @@ class AttendanceController extends Controller
             if ($attendance && !$attendance->clock_out) {
                 DB::beginTransaction();
                 try {
-                    Log::info('Clock out process started', [
-                        'attendance_id' => $attendance->id,
-                        'current_clock_out' => $attendance->clock_out,
-                        'current_total_break_time' => $attendance->total_break_time,
-                        'current_total_work_time' => $attendance->total_work_time
-                    ]);
-
                     $latestBreak = $attendance->breaks()->latest('start_time')->first();
                     if ($latestBreak && !$latestBreak->end_time) {
                         $latestBreak->end_time = $now;
@@ -124,30 +117,13 @@ class AttendanceController extends Controller
                         $latestBreak->save();
 
                         $attendance->calculateTotalBreakTime();
-                        
-                        Log::info('Auto break end on clock out', [
-                            'attendance_id' => $attendance->id,
-                            'break_id' => $latestBreak->id,
-                            'end_time' => $now->toDateTimeString(),
-                            'calculated_total_break' => $attendance->total_break_time
-                        ]);
+
                     }
 
                     $attendance->clock_out = $now;
-                    
                     $attendance->calculateTotalWorkTime();
-                    
                     $attendance->save();
-                    
                     DB::commit();
-                    
-                    Log::info('Clock out completed', [
-                        'attendance_id' => $attendance->id,
-                        'clock_in' => $attendance->clock_in,
-                        'clock_out' => $attendance->clock_out,
-                        'total_break_time' => $attendance->total_break_time,
-                        'total_work_time' => $attendance->total_work_time
-                    ]);
                 } catch (\Exception $e) {
                     DB::rollBack();
                     Log::error('Clock out process failed', [
@@ -193,10 +169,6 @@ class AttendanceController extends Controller
         $attendance->breaks()->create([
             'start_time' => $now,
         ]);
-        Log::info('Break started', [
-            'attendance_id' => $attendance->id,
-            'start_time' => $now->toDateTimeString()
-        ]);
 
         return redirect()->route('attendance.index')->with('success', '休憩を開始しました。');
     }
@@ -213,21 +185,12 @@ class AttendanceController extends Controller
             ->first();
 
         if (!$attendance) {
-            Log::error('Break end attempt failed: No active attendance record', [
-                'user_id' => $user->id
-            ]);
             return redirect()->route('attendance.index')->with('error', '出勤記録が見つかりません。');
         }
 
         $latestBreak = $attendance->breaks()->latest('start_time')->first();
 
         if (!$latestBreak || $latestBreak->end_time) {
-            Log::warning('Break end attempt failed: Not currently on break', [
-                'user_id' => $user->id,
-                'attendance_id' => $attendance->id,
-                'latest_break_id' => $latestBreak?->id,
-                'latest_break_end_time' => $latestBreak?->end_time
-            ]);
             return redirect()->route('attendance.index')->with('error', '現在休憩中ではありません。');
         }
 
@@ -238,14 +201,6 @@ class AttendanceController extends Controller
 
         $attendance->calculateTotalBreakTime();
         $attendance->save();
-
-        Log::info('Break ended and total break time updated', [
-            'attendance_id' => $attendance->id,
-            'break_id' => $latestBreak->id,
-            'end_time' => $now->toDateTimeString(),
-            'duration' => $latestBreak->duration,
-            'calculated_total_break' => $attendance->total_break_time
-        ]);
 
         return redirect()->route('attendance.index')->with('success', '休憩を終了しました。');
     }
@@ -416,14 +371,6 @@ class AttendanceController extends Controller
                 'original_break_start' => $originalBreakStart,
                 'original_break_end' => $originalBreakEnd,
                 'original_reason' => $originalReason,
-            ]);
-
-            Log::info('Correction request created', [
-                'correction_request_id' => $correctionRequest->id,
-                'attendance_id' => $attendance->id,
-                'user_id' => $user->id,
-                'break_starts' => $breakStarts,
-                'break_ends' => $breakEnds
             ]);
 
             return redirect()->route('attendance.list')

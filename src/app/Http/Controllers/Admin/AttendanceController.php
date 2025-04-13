@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -38,7 +37,6 @@ class AttendanceController extends Controller
     {
         $user = User::findOrFail($id);
         $month = $request->input('month', Carbon::now()->format('Y-m'));
-        
         $attendances = Attendance::where('user_id', $id)
             ->whereYear('date', Carbon::parse($month)->year)
             ->whereMonth('date', Carbon::parse($month)->month)
@@ -86,9 +84,9 @@ class AttendanceController extends Controller
                     'start_time' => $start ? Carbon::parse($date . ' ' . $start) : null,
                     'end_time' => $endTime ? Carbon::parse($date . ' ' . $endTime) : null,
                 ];
-             })->filter(function ($break) {
+            })->filter(function ($break) {
                 return $break->start_time && $break->end_time;
-             });
+            });
             $displayData['reason'] = $latestApprovedRequest->reason;
         } else {
             $displayData['clock_in'] = $attendance->clock_in ? Carbon::parse($attendance->clock_in) : null;
@@ -180,24 +178,22 @@ class AttendanceController extends Controller
                     $breakEndInput = $break['end_time'] ?? null;
 
                     if (!empty($breakStartInput) && !empty($breakEndInput)) {
-                         if (!$validator->errors()->has("breaks.{$index}.start_time") && !$validator->errors()->has("breaks.{$index}.end_time")) {
-                             $breakStart = $date->copy()->setTimeFromTimeString($breakStartInput);
-                             $breakEnd = $date->copy()->setTimeFromTimeString($breakEndInput);
-    
-                             if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
-                                 $validator->errors()->add("breaks.{$index}.start_time", '休憩時間が勤務時間外です。');
-                             }
-    
-                             if ($breakStart->gt($breakEnd)) {
-                                 $validator->errors()->add("breaks.{$index}.end_time", '休憩終了時間は休憩開始時間より後に設定してください。');
-                             }
-                         }
+                        if (!$validator->errors()->has("breaks.{$index}.start_time") && !$validator->errors()->has("breaks.{$index}.end_time")) {
+                            $breakStart = $date->copy()->setTimeFromTimeString($breakStartInput);
+                            $breakEnd = $date->copy()->setTimeFromTimeString($breakEndInput);
+                            if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
+                                $validator->errors()->add("breaks.{$index}.start_time", '休憩時間が勤務時間外です。');
+                            }
+                            if ($breakStart->gt($breakEnd)) {
+                                $validator->errors()->add("breaks.{$index}.end_time", '休憩終了時間は休憩開始時間より後に設定してください。');
+                            }
+                        }
                     } elseif (!empty($breakStartInput) || !empty($breakEndInput)) {
-                         $validator->errors()->add("breaks.{$index}.start_time", '休憩開始時間と終了時間の両方を入力してください。');
+                        $validator->errors()->add("breaks.{$index}.start_time", '休憩開始時間と終了時間の両方を入力してください。');
                     }
                 }
             } catch (\Exception $e) {
-                 $validator->errors()->add('date', '日付または時刻の形式が無効です。');
+                $validator->errors()->add('date', '日付または時刻の形式が無効です。');
             }
         });
 
@@ -217,22 +213,17 @@ class AttendanceController extends Controller
             if (!empty($validated['breaks'])) {
                 foreach ($validated['breaks'] as $break) {
                     if (!empty($break['start_time']) && !empty($break['end_time'])) {
-                         $startTime = Carbon::parse($newDateStr . ' ' . $break['start_time']);
-                         $endTime = Carbon::parse($newDateStr . ' ' . $break['end_time']);
+                        $startTime = Carbon::parse($newDateStr . ' ' . $break['start_time']);
+                        $endTime = Carbon::parse($newDateStr . ' ' . $break['end_time']);
 
-                         if ($startTime->lt($endTime)) {
-                             $attendance->breaks()->create([
-                                 'start_time' => $startTime,
-                                 'end_time' => $endTime,
-                                 'duration' => $startTime->diffInMinutes($endTime)
-                             ]);
-                         } else {
-                             Log::warning('Invalid break time skipped during admin update', [
-                                 'attendance_id' => $id,
-                                 'start_time' => $break['start_time'],
-                                 'end_time' => $break['end_time']
-                             ]);
-                         }
+                        if ($startTime->lt($endTime)) {
+                            $attendance->breaks()->create([
+                                'start_time' => $startTime,
+                                'end_time' => $endTime,
+                                'duration' => $startTime->diffInMinutes($endTime)
+                            ]);
+                        } else {
+                        }
                     }
                 }
             }
@@ -252,12 +243,6 @@ class AttendanceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating attendance by admin', [
-                'error' => $e->getMessage(),
-                'attendance_id' => $id,
-                'user_id' => auth()->id(),
-                'trace' => $e->getTraceAsString()
-            ]);
 
             return back()->withInput()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。']);
         }

@@ -4,4 +4,4 @@
 
 <label {{ $attributes->merge(['class' => 'c-label', 'for' => $for]) }}>
     {{ $slot }}
-</label> 
+</label>

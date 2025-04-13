@@ -81,8 +81,6 @@
     font-size: 16px;
 }
 
-.p-attendance-detail {
-}
 
 .p-attendance-detail__button-container {
     display: flex;
@@ -108,15 +106,6 @@
     font-weight: bold;
 }
 
-.p-attendance-detail__history-table {}
-
-.is-admin .p-admin-staff-list {
-    /* Styles specific to admin staff list container */
-}
-
-.is-admin .p-admin-monthly-attendance {
-    /* Styles specific to admin monthly attendance container */
-}
 
 .is-admin .p-admin-monthly-attendance__export {
     margin-top: 20px;

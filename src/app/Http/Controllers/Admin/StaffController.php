@@ -27,7 +27,6 @@ class StaffController extends Controller
         $user = User::findOrFail($id);
         $month = $request->get('month', now()->format('Y-m'));
 
-        // Calculate previous and next month strings
         $currentMonth = Carbon::parse($month . '-01');
         $previousMonth = $currentMonth->copy()->subMonth()->format('Y-m');
         $nextMonth = $currentMonth->copy()->addMonth()->format('Y-m');
@@ -38,10 +37,8 @@ class StaffController extends Controller
             ->orderBy('date')
             ->get()
             ->map(function ($attendance) {
-                // Ensure date is Carbon instance
                 $dateObj = Carbon::parse($attendance->date);
 
-                // Change date format to MM/DD
                 $formattedDate = $dateObj->format('m/d');
                 $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$dateObj->dayOfWeek];
                 $displayDate = $formattedDate . ' (' . $dayOfWeek . ')';
@@ -49,11 +46,9 @@ class StaffController extends Controller
                 $clockIn = $attendance->clock_in ? Carbon::parse($attendance->clock_in)->format('H:i') : '-';
                 $clockOut = $attendance->clock_out ? Carbon::parse($attendance->clock_out)->format('H:i') : '-';
 
-                // Use calculated total_break_time and total_work_time if available
                 $breakTime = $attendance->total_break_time ?: '00:00';
                 $totalTime = $attendance->total_work_time ?: '00:00';
 
-                // Format time correctly (remove leading zero for hours)
                 $formatTime = function($timeString) {
                     if (empty($timeString) || $timeString === '00:00') return '0:00';
                     return ltrim($timeString, '0');

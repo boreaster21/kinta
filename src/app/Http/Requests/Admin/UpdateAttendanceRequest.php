@@ -54,14 +54,14 @@ class UpdateAttendanceRequest extends FormRequest
                     }
 
                     if ($clockInInput && $clockOutInput) {
-                         $clockIn = Carbon::parse($clockInInput);
-                         $clockOut = Carbon::parse($clockOutInput);
-                         if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
-                             $validator->errors()->add("breaks.{$index}.start_time", '休憩時間は勤務時間内に設定してください。');
-                         }
+                        $clockIn = Carbon::parse($clockInInput);
+                        $clockOut = Carbon::parse($clockOutInput);
+                        if ($breakStart->lt($clockIn) || $breakEnd->gt($clockOut)) {
+                            $validator->errors()->add("breaks.{$index}.start_time", '休憩時間は勤務時間内に設定してください。');
+                        }
                     }
                 } elseif ($breakStartInput || $breakEndInput) {
-                     $validator->errors()->add("breaks.{$index}.start_time", '休憩開始時間と終了時間の両方を入力してください。');
+                    $validator->errors()->add("breaks.{$index}.start_time", '休憩開始時間と終了時間の両方を入力してください。');
                 }
             }
         });
