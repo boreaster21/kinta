@@ -72,10 +72,10 @@
 
 ## 使用技術
 
-- **PHP:** 11 (※ PHP のバージョンは `docker-compose.yaml` または `Dockerfile` をご確認ください。)
+- **PHP:** php:8.2
 - **フレームワーク:** Laravel 11.x
-- **データベース:** MySQL (バージョンは `compose.yaml` をご確認ください)
-- **Web サーバー:** Nginx ( `compose.yaml` をご確認ください)
+- **データベース:** mysql:8.0.39
+- **Web サーバー:** nginx:1.27.2
 - **コンテナ仮想化:** Docker, Docker Compose
 
 ## ER 図
@@ -225,4 +225,3 @@ erDiagram
   - `Auth/`: ログイン、登録、管理者認証などの認証関連テスト。
   - `Attendance/`: 一般ユーザー向けの勤怠打刻、休憩、一覧表示、詳細表示、修正申請に関するテスト。
   - `Admin/`: 管理者向けのスタッフ一覧、勤怠一覧、勤怠詳細/更新、修正申請の承認/却下に関するテスト。
-  - `AttendancePageTest.php`: 勤怠打刻ページの表示内容テスト。
