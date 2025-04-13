@@ -153,7 +153,6 @@ class AttendanceController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
-
         $validator->after(function ($validator) use ($request) {
             $dateInput = $request->input('date');
             $clockInInput = $request->input('clock_in');

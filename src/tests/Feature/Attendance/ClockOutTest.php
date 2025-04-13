@@ -117,7 +117,6 @@ class ClockOutTest extends TestCase
         $this->assertDatabaseMissing('attendances', [
             'user_id' => $this->user->id,
             'date' => Carbon::today()->toDateString(),
-            'clock_out' => fn ($query) => $query->whereNotNull('clock_out'),
         ]);
     }
 

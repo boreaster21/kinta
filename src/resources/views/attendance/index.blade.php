@@ -49,4 +49,3 @@
 @push('scripts')
     @vite('resources/js/attendance.js')
 @endpush
-

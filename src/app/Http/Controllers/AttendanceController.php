@@ -30,6 +30,7 @@ class AttendanceController extends Controller
             ['日', '月', '火', '水', '木', '金', '土'],
             $date
         );
+
         $currentTime = $now->format('H:i');
 
         App::setLocale($originalLocale);

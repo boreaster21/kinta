@@ -57,7 +57,6 @@ class BreakTimeTest extends TestCase
     {
         $this->actingAs($this->user);
         $response = $this->get(route('attendance.index'));
-
         $response->assertOk();
         $response->assertViewHas('status', '出勤中');
         $response->assertSee(route('attendance.break_start'));

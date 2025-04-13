@@ -37,15 +37,12 @@ class AttendancePageTest extends TestCase
         $originalLocale = App::getLocale();
         App::setLocale('ja');
         Carbon::setLocale('ja');
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow(Carbon::create(2024, 7, 5, 9, 5, 0));
         try {
             $now = Carbon::getTestNow();
-            $expectedDate = $now->translatedFormat('Y年m月d日 (D)');
-            $expectedDate = str_replace(
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                ['日', '月', '火', '水', '木', '金', '土'],
-                $expectedDate
-            );
+
+            $expectedDate = $now->format('Y年n月j日') . ' (' . $now->translatedFormat('D') . ')';
+
             $expectedTime = $now->format('H:i');
             $this->actingAs($this->user);
             $response = $this->get('/attendance');
@@ -87,7 +84,7 @@ class AttendancePageTest extends TestCase
         $response->assertOk();
         $response->assertSee('出勤中');
 
-        Carbon::setTestNow(); 
+        Carbon::setTestNow();
     }
 
     #[Test]
@@ -131,7 +128,6 @@ class AttendancePageTest extends TestCase
 
         $this->actingAs($this->user);
         $response = $this->get('/attendance');
-
         $response->assertOk();
         $response->assertSee('退勤済');
 

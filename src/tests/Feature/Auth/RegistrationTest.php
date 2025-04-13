@@ -79,7 +79,7 @@ class RegistrationTest extends TestCase
     public function registration_fails_when_password_is_missing(): void
     {
         $userData = $this->validUserData([
-            'password' => '', 
+            'password' => '',
             'password_confirmation' => '',
         ]);
         $response = $this->post('/register', $userData);
@@ -91,16 +91,15 @@ class RegistrationTest extends TestCase
     #[Test]
     public function user_can_register_with_valid_data(): void
     {
-        $userData = $this->validUserData();// 有効なデータを使用 
+        $userData = $this->validUserData();
         $response = $this->post('/register', $userData);
         $this->assertDatabaseHas('users', [
             'email' => $userData['email'],
             'name' => $userData['name'],
-            'role_id' => $this->userRole->id, // デフォルトで 'user' ロールが設定されることを期待
+            'role_id' => $this->userRole->id,
         ]);
 
-        // リダイレクト先を確認 (メール認証画面を想定)
         $response->assertRedirect('/email/verify');
-        $this->assertAuthenticated(); // 認証されているか確認
+        $this->assertAuthenticated();
     }
 }
