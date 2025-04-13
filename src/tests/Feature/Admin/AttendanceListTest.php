@@ -153,7 +153,14 @@ class AttendanceListTest extends TestCase
         $expectedWorkTimeYesterday = $this->formatTotalTime('09:00');
 
         $this->actingAs($this->adminUser);
-        $response = $this->get(route('admin.attendance.list', ['date' => $yesterday->format('Y-m-d')]));
+
+        $response = $this->get(route('admin.attendance.list'));
+        $response->assertOk();
+
+        $previousDayUrl = route('admin.attendance.list', ['date' => $yesterday->format('Y-m-d')]);
+        $response->assertSee($previousDayUrl);
+
+        $response = $this->get($previousDayUrl);
 
         $response->assertOk();
         $response->assertViewHas('date', function ($viewDate) use ($yesterday) {
@@ -198,7 +205,14 @@ class AttendanceListTest extends TestCase
         ]);
 
         $this->actingAs($this->adminUser);
-        $response = $this->get(route('admin.attendance.list', ['date' => $tomorrow->format('Y-m-d')]));
+
+        $response = $this->get(route('admin.attendance.list'));
+        $response->assertOk();
+
+        $nextDayUrl = route('admin.attendance.list', ['date' => $tomorrow->format('Y-m-d')]);
+        $response->assertSee($nextDayUrl);
+
+        $response = $this->get($nextDayUrl);
 
         $response->assertOk();
         $response->assertViewHas('date', function ($viewDate) use ($tomorrow) {

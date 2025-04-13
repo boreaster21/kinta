@@ -16,7 +16,6 @@
     </x-alert>
     @endif
 
-    {{-- Basic Request Info --}}
     <div class="p-admin-request-approve__info c-card u-mb-20">
         <table class="c-table c-table--detail">
             <tr>
@@ -51,7 +50,6 @@
         </table>
     </div>
 
-    {{-- Comparison Table --}}
     <div class="p-admin-request-approve__comparison-container c-card">
         <h3 class="p-admin-request-approve__comparison-title">修正内容比較</h3>
         <table class="c-table c-table--comparison">

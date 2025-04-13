@@ -162,20 +162,57 @@ class CorrectionRequestManagementTest extends TestCase
     public function admin_can_view_request_detail(): void
     {
         $this->actingAs($this->adminUser);
-        $response = $this->get(route('admin.stamp_correction_request.show', $this->pendingRequestUser1->id));
+        $request = $this->pendingRequestUser1->fresh()->load(['user', 'attendance.breaks']);
+
+        $response = $this->get(route('admin.stamp_correction_request.show', $request->id));
 
         $response->assertOk();
-        $response->assertViewIs('admin.stamp_correction_request.approve'); 
-        $response->assertViewHas('request', function ($viewRequest) {
-            return $viewRequest->id === $this->pendingRequestUser1->id;
+        $response->assertViewIs('admin.stamp_correction_request.approve');
+        $response->assertViewHas('request', function ($viewRequest) use ($request) {
+            return $viewRequest->id === $request->id;
         });
-        $response->assertSee($this->user1->name);
-        $response->assertSee($this->pendingRequestUser1->attendance->date->format('Y年m月d日'));
-        $response->assertSee($this->pendingRequestUser1->original_clock_in_display ?? ($this->pendingRequestUser1->attendance->clock_in ? $this->pendingRequestUser1->attendance->clock_in->format('H:i') : '-'));
-        $response->assertSee($this->pendingRequestUser1->clock_in->format('H:i'));
-        $response->assertSee($this->pendingRequestUser1->original_clock_out_display ?? ($this->pendingRequestUser1->attendance->clock_out ? $this->pendingRequestUser1->attendance->clock_out->format('H:i') : '-'));
-        $response->assertSee($this->pendingRequestUser1->clock_out->format('H:i'));
-        $response->assertSee($this->pendingRequestUser1->reason);
+
+        $response->assertSee($request->user->name);
+        $response->assertSee($request->attendance->date->format('Y年m月d日'));
+        $response->assertSee($request->created_at->format('Y/m/d H:i'));
+        $response->assertSee('承認待ち');
+
+        $originalClockInDisplay = $request->original_clock_in ? Carbon::parse($request->original_clock_in)->format('H:i') : '-';
+        $originalClockOutDisplay = $request->original_clock_out ? Carbon::parse($request->original_clock_out)->format('H:i') : '-';
+        $response->assertSee('修正前');
+        $response->assertSee($originalClockInDisplay);
+        $response->assertSee($originalClockOutDisplay);
+
+        $response->assertSee('修正後');
+        $response->assertSee(Carbon::parse($request->clock_in)->format('H:i'));
+        $response->assertSee(Carbon::parse($request->clock_out)->format('H:i'));
+
+        if (!empty($request->original_break_start)) {
+            foreach ($request->original_break_start as $index => $startTime) {
+                $endTime = $request->original_break_end[$index] ?? null;
+                if ($endTime) {
+                    $response->assertSee($startTime . ' 〜 ' . $endTime);
+                }
+            }
+        } else {
+            $response->assertSee('元の休憩なし');
+        }
+
+        if (!empty($request->break_start)) {
+            foreach ($request->break_start as $index => $startTime) {
+                $endTime = $request->break_end[$index] ?? null;
+                if ($endTime) {
+                    $response->assertSee($startTime . ' 〜 ' . $endTime);
+                }
+            }
+        } else {
+            $response->assertSee('申請休憩なし');
+        }
+
+        $response->assertSee($request->original_reason ?? '-');
+
+        $response->assertSee($request->reason);
+
         $response->assertSee('承認する');
         $response->assertSee('却下する');
     }

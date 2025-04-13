@@ -74,7 +74,7 @@ class DetailTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('attendance.user.name', $this->user->name);
-        $response->assertSeeText($this->user->name); // Keep checking visible text too
+        $response->assertSeeText($this->user->name);
     }
 
     #[Test]
@@ -89,6 +89,7 @@ class DetailTest extends TestCase
             return $viewDate->isSameDay($expectedDate);
         });
         $response->assertSee('name="date"', false);
+        $response->assertSee('value="' . $expectedDate->format('Y-m-d') . '"', false);
     }
 
     #[Test]
@@ -108,7 +109,9 @@ class DetailTest extends TestCase
             return $viewClockOut && $viewClockOut->equalTo($expectedClockOut);
         });
         $response->assertSee('name="clock_in"', false);
+        $response->assertSee('value="' . $expectedClockIn->format('H:i') . '"', false);
         $response->assertSee('name="clock_out"', false);
+        $response->assertSee('value="' . $expectedClockOut->format('H:i') . '"', false);
 
         $responseNoClockOut = $this->get(route('attendance.show', $this->attendanceNoClockOut->id));
         $responseNoClockOut->assertOk();
@@ -118,7 +121,9 @@ class DetailTest extends TestCase
         });
         $responseNoClockOut->assertViewHas('displayData.clock_out', null);
         $responseNoClockOut->assertSee('name="clock_in"', false);
+        $responseNoClockOut->assertSee('value="' . $expectedClockInNoClockOut->format('H:i') . '"', false);
         $responseNoClockOut->assertSee('name="clock_out"', false);
+        $responseNoClockOut->assertSee('value=""', false);
     }
 
     #[Test]
@@ -144,21 +149,21 @@ class DetailTest extends TestCase
             return true;
         });
 
-        $response->assertSee('name="break_start[]"', false);
-        $response->assertSee('id="break_start_0"', false);
-        $response->assertSee('name="break_end[]"', false);
-        $response->assertSee('id="break_end_0"', false);
-        $response->assertSee('id="break_start_1"', false);
-        $response->assertSee('id="break_end_1"', false);
+        foreach ($expectedBreaks as $index => $break) {
+            $response->assertSee('id="break_start_' . $index . '"', false);
+            $response->assertSee('value="' . Carbon::parse($break->start_time)->format('H:i') . '"', false);
+            $response->assertSee('id="break_end_' . $index . '"', false);
+            $response->assertSee('value="' . Carbon::parse($break->end_time)->format('H:i') . '"', false);
+        }
 
         $responseNoBreaks = $this->get(route('attendance.show', $this->attendanceNoBreaks->id));
         $responseNoBreaks->assertOk();
         $responseNoBreaks->assertViewHas('displayData.breaks', function($viewBreaks) {
             return $viewBreaks->isEmpty();
         });
-        $responseNoBreaks->assertSee('name="break_start[]"', false);
         $responseNoBreaks->assertSee('id="break_start_0"', false);
-        $responseNoBreaks->assertSee('name="break_end[]"', false);
+        $responseNoBreaks->assertSee('value=""', false);
         $responseNoBreaks->assertSee('id="break_end_0"', false);
+        $responseNoBreaks->assertSee('value=""', false);
     }
 }

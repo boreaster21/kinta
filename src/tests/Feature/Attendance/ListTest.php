@@ -119,7 +119,14 @@ class ListTest extends TestCase
         ]);
 
         $this->actingAs($this->user);
-        $response = $this->get(route('attendance.list', ['month' => $previousMonthString]));
+
+        $response = $this->get(route('attendance.list'));
+        $response->assertOk();
+
+        $previousMonthUrl = route('attendance.list', ['month' => $previousMonthString]);
+        $response->assertSee($previousMonthUrl);
+
+        $response = $this->get($previousMonthUrl);
 
         $response->assertOk();
         $response->assertViewHas('month', $previousMonthString);
@@ -149,8 +156,14 @@ class ListTest extends TestCase
         ]);
 
         $this->actingAs($this->user);
-        $response = $this->get(route('attendance.list', ['month' => $nextMonthString]));
 
+        $response = $this->get(route('attendance.list'));
+        $response->assertOk();
+
+        $nextMonthUrl = route('attendance.list', ['month' => $nextMonthString]);
+        $response->assertSee($nextMonthUrl);
+
+        $response = $this->get($nextMonthUrl);
         $response->assertOk();
         $response->assertViewHas('month', $nextMonthString);
         $response->assertSee($nextMonthDisplay);

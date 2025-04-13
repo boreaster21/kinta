@@ -3,7 +3,6 @@
 @section('content')
 <div class="l-container l-container--narrow p-attendance-detail">
     <h2 class="c-title">勤怠詳細</h2>
-
     <x-alert type="success" :message="session('message')" />
 
     @if ($errors->any())

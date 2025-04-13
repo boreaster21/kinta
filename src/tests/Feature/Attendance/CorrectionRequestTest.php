@@ -154,7 +154,7 @@ class CorrectionRequestTest extends TestCase
         ]);
 
         $this->actingAs($this->user);
-        $response = $this->get(route('stamp_correction_request.list', ['status' => 'pending'])); // Use status=pending explicitly
+        $response = $this->get(route('stamp_correction_request.list', ['status' => 'pending']));
 
         $response->assertOk();
         $response->assertSee($request->date->format('Y/m/d'));
@@ -195,7 +195,7 @@ class CorrectionRequestTest extends TestCase
 
             return false;
         });
-        $response->assertSee('承認済');
+        $response->assertSee('承認済み');
         $response->assertSee(route('stamp_correction_request.approved', $requestRecord->id));
     }
 
