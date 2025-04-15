@@ -16,7 +16,7 @@ services:
         working_dir: /var/www
         command: php-fpm
         environment:
-        - NODE_ENV=development    
+        - NODE_ENV=development
 
     mysql:
         image: mysql:8.0.39
