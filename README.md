@@ -8,6 +8,8 @@
 
 - Docker
 - Docker Compose
+- Node.js (v18 以上推奨)
+- npm (または yarn)
 
 ### 手順
 
@@ -25,7 +27,15 @@
     cp .env.example .env
     ```
 
-3.  **Docker コンテナのビルドと起動:**
+3.  **(ホストマシン) Node.js 依存関係のインストール:**
+    プロジェクトルート（`compose.yaml` があるディレクトリ）で以下を実行します。
+
+    ```bash
+    npm install
+    # または yarn install
+    ```
+
+4.  **Docker コンテナのビルドと起動:**
 
     ```bash
     docker-compose up -d --build
@@ -33,39 +43,58 @@
 
     - _注意:_ MySQL コンテナは、お使いの OS や環境によっては正常に起動しない場合があります。その場合は、`compose.yaml` ファイル内の MySQL サービス定義（ポートやボリュームなど）を適宜調整してください。
 
-4.  **PHP コンテナへのアクセス:**
+5.  **PHP コンテナへのアクセス:**
 
     ```bash
     docker-compose exec php bash
     ```
 
-5.  **(PHP コンテナ内) Composer パッケージのインストール:**
+6.  **(PHP コンテナ内) Composer パッケージのインストール:**
 
     ```bash
     composer install
     ```
 
-6.  **(PHP コンテナ内) アプリケーションキーの生成:**
+7.  **(PHP コンテナ内) アプリケーションキーの生成:**
 
     ```bash
     php artisan key:generate
     ```
 
-7.  **(PHP コンテナ内) データベースマイグレーション:**
+8.  **(PHP コンテナ内) データベースマイグレーション:**
 
     ```bash
     php artisan migrate
     ```
 
-8.  **(PHP コンテナ内) データベースシーディング (テストデータの投入):**
+9.  **(PHP コンテナ内) データベースシーディング (テストデータの投入):**
 
     ```bash
     php artisan db:seed
     ```
 
-9.  **コンテナからの退出:**
+10. **コンテナからの退出:**
+
     ```bash
     exit
+    ```
+
+11. **Vite 開発サーバーの起動:**
+    新しいターミナルを開き、プロジェクトルートで以下を実行します。
+
+    ```bash
+    npm run dev
+    # または yarn dev
+    ```
+
+    このコマンドを実行後、ブラウザでアプリケーション ([http://localhost/](http://localhost/)) にアクセスしてください。開発中は Vite サーバーを起動しておく必要があります。
+
+    **(本番環境やビルドする場合)**
+    本番環境にデプロイする場合や、開発サーバーを使わずに静的なアセットを使用する場合は、代わりに以下のコマンドを実行してアセットをビルドします。
+
+    ```bash
+    npm run build
+    # または yarn build
     ```
 
 これで環境構築は完了です。
