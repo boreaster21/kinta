@@ -11,6 +11,27 @@
 - Node.js (v18 以上推奨)
 - npm (または yarn)
 
+- **Node.js と npm:**
+  - プロジェクトで推奨される Node.js バージョン (例: v18) を利用するために、**Node Version Manager (`nvm`)** を使用してインストールすることを推奨します。
+
+  - **nvm のインストール (未インストールの場合):**
+    ```bash
+    # nvmのインストールスクリプトを実行 (公式の最新コマンドを確認してください)
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+    # ターミナルを再起動するか、以下のコマンドでnvmを読み込む
+    export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    ```
+
+  - **nvm を使用した Node.js (v18) のインストール:**
+    ```bash
+    nvm install 18
+    nvm use 18
+    # npmも同時にインストールされます
+    ```
+
+
 ### 手順
 
 1.  **リポジトリのクローン:**
