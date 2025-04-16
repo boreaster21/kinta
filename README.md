@@ -23,7 +23,7 @@
 
     # ターミナルを再起動するか、以下のコマンドでnvmを読み込む
     export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
     ```
 
   - **nvm を使用した Node.js (v18) のインストール:**
@@ -35,22 +35,23 @@
 
 ### 手順
 
-1.  **リポジトリのクローン:**
+1.  **(ホストマシン) リポジトリのクローン:**
 
     ```bash
     git clone [リポジトリのURL]
     cd [クローンしたディレクトリ名]
     ```
 
-2.  **環境変数の設定:**
-    `.env.example` ファイルをコピーして `.env` ファイルを作成し、必要に応じてデータベース接続情報などを編集します。
+2.  **(ホストマシン) 環境変数の設定:**
+    プロジェクトルートで `.env.example` ファイルをコピーして `.env` ファイルを作成します。必要に応じて内容を編集してください。（特にメール設定など）
 
     ```bash
-    cp .env.example .env
+    cp src/.env.example src/.env
+    # 注意: .env.example は src ディレクトリ内にあります
     ```
 
 3.  **(ホストマシン) Node.js 依存関係のインストール:**
-    `package.json` があるディレクトリ（例： `src/` ）に移動してから、以下を実行します。
+    `package.json` が存在する **`src` ディレクトリ内** で以下を実行します。
 
     ```bash
     cd src
@@ -59,15 +60,17 @@
     cd ..
     ```
 
-4.  **Docker コンテナのビルドと起動:**
+4.  **(ホストマシン) Docker コンテナのビルドと起動:**
+    プロジェクトルートで以下を実行します。
 
     ```bash
     docker-compose up -d --build
     ```
 
-    - _注意:_ MySQL コンテナは、お使いの OS や環境によっては正常に起動しない場合があります。その場合は、`compose.yaml` ファイル内の MySQL サービス定義（ポートやボリュームなど）を適宜調整してください。
+    MySQL データは Docker 名前付きボリューム (`mysql_data`) に永続化されます。初回起動時など、コンテナの起動に時間がかかる場合があります。
 
-5.  **PHP コンテナへのアクセス:**
+5.  **(ホストマシン) PHP コンテナへのアクセス:**
+    コンテナが起動したら、以下のコマンドで PHP コンテナのシェルに入ります。
 
     ```bash
     docker-compose exec php bash
@@ -86,37 +89,42 @@
     ```
 
 8.  **(PHP コンテナ内) データベースマイグレーション:**
+    データベースのテーブルを作成します。
 
     ```bash
     php artisan migrate
     ```
 
 9.  **(PHP コンテナ内) データベースシーディング (テストデータの投入):**
+    必要に応じて、テスト用の初期データを投入します。
 
     ```bash
     php artisan db:seed
     ```
 
-10. **コンテナからの退出:**
+10. **(PHP コンテナ内) コンテナからの退出:**
 
     ```bash
     exit
     ```
 
-11. **Vite 開発サーバーの起動:**
-    新しいターミナルを開き、プロジェクトルートで以下を実行します。
+11. **(ホストマシン) Vite 開発サーバーの起動:**
+    開発時にフロントエンドの変更をリアルタイムに反映させるには、**`src` ディレクトリ内** で Vite 開発サーバーを起動します。（通常、別のターミナルを開いて実行し続けます）
 
     ```bash
+    cd src
     npm run dev
     # または yarn dev
+    # 終了する場合は Ctrl+C
     ```
 
-    このコマンドを実行後、ブラウザでアプリケーション ([http://localhost/](http://localhost/)) にアクセスしてください。開発中は Vite サーバーを起動しておく必要があります。
+    Vite サーバー起動後、ブラウザでアプリケーション ([http://localhost/](http://localhost/)) にアクセスしてください。
 
     **(本番環境やビルドする場合)**
-    本番環境にデプロイする場合や、開発サーバーを使わずに静的なアセットを使用する場合は、代わりに以下のコマンドを実行してアセットをビルドします。
+    本番環境向けに最適化された静的なアセットファイルを生成する場合は、代わりに **`src` ディレクトリ内** で以下のコマンドを実行します。
 
     ```bash
+    cd src
     npm run build
     # または yarn build
     ```
@@ -125,10 +133,11 @@
 
 ## 使用技術
 
-- **PHP:** php:8.2
+- **PHP:** php:8.2 (Dockerfile を参照)
 - **フレームワーク:** Laravel 11.x
 - **データベース:** mysql:8.0.39
 - **Web サーバー:** nginx:1.27.2
+- **フロントエンド:** Vite, Node.js
 - **コンテナ仮想化:** Docker, Docker Compose
 
 ## ER 図
@@ -226,7 +235,7 @@ erDiagram
 ## URL
 
 - **開発環境:** [http://localhost/](http://localhost/)
-- **phpMyAdmin:** [http://localhost:8080/](http://localhost:8080/) ( `compose.yaml` でポートが変更されている場合は調整してください)
+- **phpMyAdmin:** [http://localhost:8080/](http://localhost:8080/)
 
 ## ログイン情報 (シーディング後)
 
@@ -245,13 +254,14 @@ erDiagram
 
 ### テストの実行方法
 
-1.  **Docker コンテナ内に入る:**
+1.  **(ホストマシン) PHP コンテナ内に入る:**
 
     ```bash
     docker-compose exec php bash
     ```
 
 2.  **(PHP コンテナ内) テストを実行する:**
+    プロジェクトのルート (`/var/www`) で実行します。
 
     ```bash
     php artisan test

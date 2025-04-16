@@ -38,8 +38,13 @@ class StampCorrectionRequest extends Model
         'break_start' => 'array',
         'break_end' => 'array',
         'original_date' => 'date',
+        'original_clock_in' => 'datetime',
+        'original_clock_out' => 'datetime',
         'original_break_start' => 'array',
         'original_break_end' => 'array',
+        'original_reason',
+        'reason',
+        'status',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime'
     ];

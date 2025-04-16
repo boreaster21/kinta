@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -209,6 +210,7 @@ class AttendanceController extends Controller
             $attendance->reason = $validated['reason'];
 
             $attendance->breaks()->delete();
+
             if (!empty($validated['breaks'])) {
                 foreach ($validated['breaks'] as $break) {
                     if (!empty($break['start_time']) && !empty($break['end_time'])) {

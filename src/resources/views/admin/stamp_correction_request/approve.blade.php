@@ -63,12 +63,12 @@
             <tbody>
                 <tr>
                     <th>出勤</th>
-                    <td>{{ $request->original_clock_in_display }}</td>
+                    <td>{{ $request->original_clock_in ? \Carbon\Carbon::parse($request->original_clock_in)->format('H:i') : '-' }}</td>
                     <td>{{ \Carbon\Carbon::parse($request->clock_in)->format('H:i') }}</td>
                 </tr>
                 <tr>
                     <th>退勤</th>
-                    <td>{{ $request->original_clock_out_display }}</td>
+                    <td>{{ $request->original_clock_out ? \Carbon\Carbon::parse($request->original_clock_out)->format('H:i') : '-' }}</td>
                     <td>{{ \Carbon\Carbon::parse($request->clock_out)->format('H:i') }}</td>
                 </tr>
                 {{-- Combine Breaks --}}
@@ -76,17 +76,27 @@
                     $requestedBreaks = collect($request->break_start ?? [])->map(function ($start, $index) use ($request) {
                         $endTime = $request->break_end[$index] ?? null;
                         if ($start && $endTime) {
+                            // Use explicit parsing for requested times as they might be strings 'H:i'
                             return \Carbon\Carbon::parse($start)->format('H:i') . ' 〜 ' . \Carbon\Carbon::parse($endTime)->format('H:i');
                         }
                         return '-';
                     })->toArray();
-                    $maxBreaks = max(count($request->original_breaks_display ?? []), count($requestedBreaks));
+                    // Format original breaks directly from model properties (which should be arrays)
+                    $originalBreaks = collect($request->original_break_start ?? [])->map(function ($start, $index) use ($request) {
+                        $endTime = $request->original_break_end[$index] ?? null;
+                        if ($start && $endTime) {
+                            // original_break_start/end are expected to be arrays of 'H:i' strings based on factory
+                            return $start . ' 〜 ' . $endTime;
+                        }
+                        return '-';
+                    })->toArray();
+                    $maxBreaks = max(count($originalBreaks), count($requestedBreaks));
                 @endphp
                 @for ($i = 0; $i < $maxBreaks; $i++)
                 <tr>
                     <th>休憩{{ $i + 1 }}</th>
                     <td>
-                        {{ $request->original_breaks_display[$i] ?? '-' }}
+                        {{ $originalBreaks[$i] ?? '-' }}
                     </td>
                     <td>
                         {{ $requestedBreaks[$i] ?? '-' }}
@@ -102,7 +112,7 @@
                 @endif
                 <tr>
                     <th>備考</th>
-                    <td>{{ $request->original_reason_display }}</td>
+                    <td>{{ $request->original_reason ?? '-' }}</td>
                     <td>{{ $request->reason ?? '-' }}</td>
                 </tr>
             </tbody>

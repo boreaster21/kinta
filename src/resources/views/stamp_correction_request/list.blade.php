@@ -73,6 +73,9 @@
                                     $buttonVariant = 'primary';
                                 } elseif ($request['status'] === 'approved') {
                                     $detailUrl = route('stamp_correction_request.approved', $request['id']);
+                                } elseif ($request['status'] === 'rejected') {
+                                    $detailUrl = route('admin.stamp_correction_request.show', $request['id']); // Also link to show route for rejected
+                                    $buttonVariant = 'secondary'; // Keep secondary variant for rejected
                                 }
                             } else {
                                 if ($request['status'] === 'pending') {

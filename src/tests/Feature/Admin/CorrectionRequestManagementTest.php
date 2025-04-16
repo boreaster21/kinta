@@ -179,6 +179,7 @@ class CorrectionRequestManagementTest extends TestCase
 
         $originalClockInDisplay = $request->original_clock_in ? Carbon::parse($request->original_clock_in)->format('H:i') : '-';
         $originalClockOutDisplay = $request->original_clock_out ? Carbon::parse($request->original_clock_out)->format('H:i') : '-';
+
         $response->assertSee('修正前');
         $response->assertSee($originalClockInDisplay);
         $response->assertSee($originalClockOutDisplay);
@@ -195,7 +196,7 @@ class CorrectionRequestManagementTest extends TestCase
                 }
             }
         } else {
-            $response->assertSee('元の休憩なし');
+            $response->assertSee('休憩なし');
         }
 
         if (!empty($request->break_start)) {
