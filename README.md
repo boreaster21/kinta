@@ -12,9 +12,11 @@
 - npm (または yarn)
 
 - **Node.js と npm:**
+
   - プロジェクトで推奨される Node.js バージョン (例: v18) を利用するために、**Node Version Manager (`nvm`)** を使用してインストールすることを推奨します。
 
   - **nvm のインストール (未インストールの場合):**
+
     ```bash
     # nvmのインストールスクリプトを実行 (公式の最新コマンドを確認してください)
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -30,7 +32,6 @@
     nvm use 18
     # npmも同時にインストールされます
     ```
-
 
 ### 手順
 
@@ -49,11 +50,13 @@
     ```
 
 3.  **(ホストマシン) Node.js 依存関係のインストール:**
-    プロジェクトルート（`package.json` があるディレクトリ）で以下を実行します。
+    `package.json` がある `src` ディレクトリに移動してから、以下を実行します。
 
     ```bash
+    cd src
     npm install
     # または yarn install
+    cd ..
     ```
 
 4.  **Docker コンテナのビルドと起動:**
